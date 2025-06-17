@@ -1,26 +1,33 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function PatientInfoScreen() {
   return (
-    <ScrollView style={styles.container}>
+    <SafeAreaView style={styles.safeArea}>
       <StatusBar style="auto" />
-      <View style={styles.header}>
-        <Text style={styles.title}>Patient Information</Text>
-      </View>
-      
-      <View style={styles.infoContainer}>
-        <Text style={styles.infoText}>
-          Welcome to FallGuard! This screen will contain your personal information and health details.
-          We'll add more features here soon.
-        </Text>
-      </View>
-    </ScrollView>
+      <ScrollView style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Patient Information</Text>
+        </View>
+        
+        <View style={styles.infoContainer}>
+          <Text style={styles.infoText}>
+            Welcome to FallGuard! This screen will contain your personal information and health details.
+            We'll add more features here soon.
+          </Text>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
   container: {
     flex: 1,
     backgroundColor: '#fff',

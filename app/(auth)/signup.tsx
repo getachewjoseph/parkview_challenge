@@ -14,13 +14,18 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import { api } from '../../lib/api';
+import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function SignUpScreen() {
+  const insets = useSafeAreaInsets();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [userType, setUserType] = useState<'patient' | 'caretaker'>('patient');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleSignUp = async () => {
     if (!email || !password || !confirmPassword) {
@@ -49,7 +54,7 @@ export default function SignUpScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { paddingTop: insets.top }]}>
       <StatusBar barStyle="dark-content" />
       <KeyboardAvoidingView 
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -97,26 +102,56 @@ export default function SignUpScreen() {
               editable={!isLoading}
               placeholderTextColor="#999"
             />
-            <TextInput
-              style={styles.input}
-              placeholder="Password"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-              editable={!isLoading}
-              placeholderTextColor="#999"
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Confirm Password"
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              secureTextEntry
-              editable={!isLoading}
-              placeholderTextColor="#999"
-            />
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={[styles.input, styles.passwordInput]}
+                placeholder="Password"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+                editable={!isLoading}
+                placeholderTextColor="#999"
+              />
+              <View style={styles.eyeIconContainer}>
+                <TouchableOpacity
+                  style={styles.eyeIcon}
+                  onPressIn={() => setShowPassword(true)}
+                  onPressOut={() => setShowPassword(false)}
+                >
+                  <Ionicons
+                    name={showPassword ? 'eye-off' : 'eye'}
+                    size={24}
+                    color="#666"
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={[styles.input, styles.passwordInput]}
+                placeholder="Confirm Password"
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                secureTextEntry={!showConfirmPassword}
+                editable={!isLoading}
+                placeholderTextColor="#999"
+              />
+              <View style={styles.eyeIconContainer}>
+                <TouchableOpacity
+                  style={styles.eyeIcon}
+                  onPressIn={() => setShowConfirmPassword(true)}
+                  onPressOut={() => setShowConfirmPassword(false)}
+                >
+                  <Ionicons
+                    name={showConfirmPassword ? 'eye-off' : 'eye'}
+                    size={24}
+                    color="#666"
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
             <TouchableOpacity 
-              style={[styles.signupButton, isLoading && styles.signupButtonDisabled]} 
+              style={[styles.signupButton, isLoading && styles.signupButtonDisabled]}
               onPress={handleSignUp}
               disabled={isLoading}
             >
@@ -225,5 +260,30 @@ const styles = StyleSheet.create({
   loginLinkText: {
     color: '#2E7D32',
     fontSize: 16,
+  },
+  passwordContainer: {
+    position: 'relative',
+    marginBottom: 15,
+    height: 50,
+  },
+  passwordInput: {
+    paddingRight: 50,
+    height: 50,
+  },
+  eyeIconContainer: {
+    position: 'absolute',
+    right: 15,
+    top: '50%',
+    transform: [{ translateY: -12 }],
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  eyeIcon: {
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 }); 

@@ -1,35 +1,42 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function CaretakerDashboardScreen() {
   return (
-    <ScrollView style={styles.container}>
+    <SafeAreaView style={styles.safeArea}>
       <StatusBar style="auto" />
-      <View style={styles.header}>
-        <Text style={styles.title}>Caretaker Dashboard</Text>
-      </View>
-      
-      <View style={styles.content}>
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Your Patients</Text>
-          <Text style={styles.cardText}>
-            You'll be able to view and manage your patients here.
-          </Text>
+      <ScrollView style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Caretaker Dashboard</Text>
         </View>
+        
+        <View style={styles.content}>
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Your Patients</Text>
+            <Text style={styles.cardText}>
+              You'll be able to view and manage your patients here.
+            </Text>
+          </View>
 
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Recent Alerts</Text>
-          <Text style={styles.cardText}>
-            Important notifications and alerts will appear here.
-          </Text>
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Recent Alerts</Text>
+            <Text style={styles.cardText}>
+              Important notifications and alerts will appear here.
+            </Text>
+          </View>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
