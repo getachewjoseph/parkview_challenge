@@ -35,9 +35,9 @@ export default function LoginScreen() {
       setIsLoading(true);
       const data = await api.login({ email, password });
       if (data.userType === 'patient') {
-        router.replace('/(tabs)/patient-info');
+        router.replace('/(tabs)/patient-info' as any);
       } else {
-        router.replace('/(tabs)/caretaker-dashboard');
+        router.replace('/(tabs)/caretaker-dashboard' as any);
       }
     } catch (err: any) {
       Alert.alert('Error', err.message || 'Failed to sign in');
@@ -131,7 +131,7 @@ export default function LoginScreen() {
 
             <TouchableOpacity 
               style={styles.signupLink}
-              onPress={() => router.push('/(auth)/signup')}
+              onPress={() => router.push('/(auth)/signup' as any)}
               disabled={isLoading}
             >
               <Text style={styles.signupLinkText}>

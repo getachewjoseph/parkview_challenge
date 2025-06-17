@@ -26,6 +26,14 @@ export interface RegisterCredentials extends LoginCredentials {
   userType: 'patient' | 'caretaker';
 }
 
+export interface ScreeningAnswers {
+  unsteady: boolean;
+  worries: boolean;
+  fallen: boolean;
+  fallCount?: string;
+  fallInjured?: string;
+}
+
 const handleResponse = async (response: Response) => {
   console.log('Response status:', response.status);
   console.log('Response headers:', response.headers);
@@ -142,4 +150,24 @@ export const api = {
       return null;
     }
   },
-}; 
+
+  async submitScreening(answers: ScreeningAnswers) {
+    try {
+      const token = await this.getToken();
+      if (!token) throw new Error('Not authenticated');
+      const response = await fetch(`${API_URL}/screening`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(answers),
+      });
+      return await handleResponse(response);
+    } catch (error) {
+      console.error('Submit screening error:', error);
+      throw error;
+    }
+  },
+};
