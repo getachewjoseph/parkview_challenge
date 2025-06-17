@@ -1,5 +1,16 @@
-import React, { useState } from 'react';
-import { View, Text, Button, StyleSheet, ScrollView, TextInput, Pressable } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TextInput,
+  Pressable,
+  Animated,
+  Platform,
+  StatusBar,
+} from 'react-native';
+import { api } from '../../lib/api';
 
 export default function SteadiScreening() {
   const [answers, setAnswers] = useState({
@@ -10,116 +21,194 @@ export default function SteadiScreening() {
     fallInjured: '',
   });
 
-  const handleAnswer = (key, value) => {
-    setAnswers(prev => ({ ...prev, [key]: value }));
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+  }, []);
+
+  const handleAnswer = (key: string, value: string) => {
+    setAnswers((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleSubmit = () => {
-    console.log("Submitted Answers:", answers);
-    // TODO: Save answers to backend once user login is available
+  const handleSubmit = async () => {
+    console.log('Submitted Answers:', answers);
+    try {
+      await api.submitScreening({
+        unsteady: answers.unsteady === 'Yes',
+        worries: answers.worries === 'Yes',
+        fallen: answers.fallen === 'Yes',
+        fallCount: answers.fallCount,
+        fallInjured: answers.fallInjured,
+      });
+      alert('Answers submitted!');
+    } catch (err: any) {
+      alert('Failed to submit: ' + (err.message || 'Unknown error'));
+    }
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>NIH STEADI-3 Basic Screening</Text>
+    <Animated.ScrollView
+      style={[
+        styles.container,
+        {
+          paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight ?? 24 : 24,
+          opacity: fadeAnim,
+        },
+      ]}
+    >
+      <Text style={styles.title}>🧠 Fall Risk Screening</Text>
+      <Text style={styles.subtitle}>NIH STEADI-3 Questionnaire</Text>
 
-      <Text style={styles.question}>1. Feels unsteady when standing or walking?</Text>
-      <YesNoButtons value={answers.unsteady} onChange={val => handleAnswer('unsteady', val)} />
+      <Question
+        text="1. Do you feel unsteady when standing or walking?"
+        value={answers.unsteady}
+        onChange={(val) => handleAnswer('unsteady', val)}
+      />
 
-      <Text style={styles.question}>2. Worries about falling?</Text>
-      <YesNoButtons value={answers.worries} onChange={val => handleAnswer('worries', val)} />
+      <Question
+        text="2. Do you worry about falling?"
+        value={answers.worries}
+        onChange={(val) => handleAnswer('worries', val)}
+      />
 
-      <Text style={styles.question}>3. Has fallen in the past year?</Text>
-      <YesNoButtons value={answers.fallen} onChange={val => handleAnswer('fallen', val)} />
+      <Question
+        text="3. Have you fallen in the past year?"
+        value={answers.fallen}
+        onChange={(val) => handleAnswer('fallen', val)}
+      />
 
       {answers.fallen === 'Yes' && (
-        <>
-          <Text style={styles.followup}>How many times?</Text>
+        <View style={styles.extraSection}>
+          <Text style={styles.extraLabel}>How many times?</Text>
           <TextInput
             style={styles.input}
             keyboardType="numeric"
+            placeholder="e.g., 2"
             value={answers.fallCount}
             onChangeText={(val) => handleAnswer('fallCount', val)}
           />
-          <Text style={styles.followup}>Were you injured?</Text>
+
+          <Text style={styles.extraLabel}>Were you injured?</Text>
           <TextInput
             style={styles.input}
+            placeholder="Describe injury"
             value={answers.fallInjured}
             onChangeText={(val) => handleAnswer('fallInjured', val)}
           />
-        </>
+        </View>
       )}
 
-      <Pressable style={styles.submitButton} onPress={handleSubmit}>
-        <Text style={styles.submitText}>Submit</Text>
+      <Pressable style={[styles.button, styles.submitButton]} onPress={handleSubmit}>
+        <Text style={styles.buttonText}>Submit Answers</Text>
       </Pressable>
-    </ScrollView>
+    </Animated.ScrollView>
   );
 }
 
-const YesNoButtons = ({ value, onChange }) => (
-  <View style={styles.buttonRow}>
-    <Pressable
-      style={[styles.button, value === 'Yes' && styles.selected]}
-      onPress={() => onChange('Yes')}
-    >
-      <Text>Yes</Text>
-    </Pressable>
-    <Pressable
-      style={[styles.button, value === 'No' && styles.selected]}
-      onPress={() => onChange('No')}
-    >
-      <Text>No</Text>
-    </Pressable>
-  </View>
-);
+function Question({
+  text,
+  value,
+  onChange,
+}: {
+  text: string;
+  value: string | null;
+  onChange: (val: string) => void;
+}) {
+  return (
+    <View style={styles.questionBlock}>
+      <Text style={styles.questionText}>{text}</Text>
+      <View style={styles.buttonRow}>
+        <Pressable
+          style={[styles.button, value === 'Yes' && styles.selected]}
+          onPress={() => onChange('Yes')}
+        >
+          <Text style={styles.buttonText}>Yes</Text>
+        </Pressable>
+        <Pressable
+          style={[styles.button, value === 'No' && styles.selected]}
+          onPress={() => onChange('No')}
+        >
+          <Text style={styles.buttonText}>No</Text>
+        </Pressable>
+      </View>
+    </View>
+  );
+}
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
+    flex: 1,
+    backgroundColor: '#f4f6f8',
+    padding: 24,
+    paddingBottom: 80,
   },
   title: {
-    fontSize: 22,
-    fontWeight: 'bold',
+    fontSize: 28,
+    fontWeight: '700',
+    textAlign: 'center',
+    marginBottom: 4,
+    color: '#2d3436',
+  },
+  subtitle: {
+    fontSize: 16,
+    textAlign: 'center',
+    color: '#636e72',
     marginBottom: 20,
   },
-  question: {
+  questionBlock: {
+    marginBottom: 24,
+  },
+  questionText: {
     fontSize: 16,
-    marginTop: 15,
-  },
-  followup: {
-    fontSize: 14,
-    marginTop: 10,
-  },
-  input: {
-    borderColor: '#ccc',
-    borderWidth: 1,
-    padding: 8,
-    marginTop: 5,
-    borderRadius: 5,
+    fontWeight: '500',
+    marginBottom: 8,
+    color: '#2d3436',
   },
   buttonRow: {
     flexDirection: 'row',
-    marginVertical: 10,
+    gap: 12,
   },
   button: {
-    backgroundColor: '#eee',
-    padding: 10,
-    marginRight: 10,
-    borderRadius: 5,
+    flex: 1,
+    backgroundColor: '#dfe6e9',
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#b2bec3',
   },
   selected: {
-    backgroundColor: '#b0e0e6',
+    backgroundColor: '#74b9ff',
+    borderColor: '#0984e3',
+  },
+  buttonText: {
+    fontWeight: '600',
+    color: '#2d3436',
+  },
+  extraSection: {
+    marginTop: -8,
+    marginBottom: 24,
+  },
+  extraLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    marginTop: 12,
+    marginBottom: 6,
+    color: '#2d3436',
+  },
+  input: {
+    borderColor: '#b2bec3',
+    borderWidth: 1,
+    padding: 10,
+    borderRadius: 8,
+    backgroundColor: '#fff',
   },
   submitButton: {
-    backgroundColor: '#4682b4',
-    marginTop: 30,
-    padding: 12,
-    borderRadius: 5,
-    alignItems: 'center',
-  },
-  submitText: {
-    color: 'white',
-    fontWeight: 'bold',
+    marginTop: 10,
   },
 });
