@@ -19,4 +19,15 @@ $$ language 'plpgsql';
 CREATE TRIGGER update_users_updated_at
     BEFORE UPDATE ON users
     FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column(); 
+    EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TABLE screenings (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    unsteady BOOLEAN NOT NULL,
+    worries BOOLEAN NOT NULL,
+    fallen BOOLEAN NOT NULL,
+    fall_count INTEGER,
+    fall_injured TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
