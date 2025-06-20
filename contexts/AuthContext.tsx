@@ -6,14 +6,17 @@ interface User {
   id: number;
   email: string;
   userType: 'patient' | 'caretaker';
+  caretakerId?: number | null;
+  referralCode?: string | null;
 }
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, userType: 'patient' | 'caretaker') => Promise<void>;
+  signUp: (email: string, password: string, userType: 'patient' | 'caretaker', referralCode?: string) => Promise<void>;
   logout: () => Promise<void>;
+  checkAuth: () => Promise<void>;
   error: string | null;
 }
 
@@ -32,13 +35,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const token = await api.getToken();
       if (token) {
-        // TODO: Verify token with backend and get user info
-        // For now, we'll just set a placeholder user
-        setUser({
-          id: 1,
-          email: 'user@example.com',
-          userType: 'patient'
-        });
+        const userData = await api.getMe();
+        setUser(userData);
       }
     } catch (err) {
       console.error('Auth check failed:', err);
@@ -51,18 +49,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setError(null);
       await api.login({ email, password });
-      await checkAuth();
+      const userData = await api.getMe();
+      setUser(userData);
     } catch (err: any) {
       setError(err.message);
       throw err;
     }
   };
 
-  const signUp = async (email: string, password: string, userType: 'patient' | 'caretaker') => {
+  const signUp = async (email: string, password: string, userType: 'patient' | 'caretaker', referralCode?: string) => {
     try {
       setError(null);
-      await api.register({ email, password, userType });
-      await checkAuth();
+      await api.register({ email, password, userType, referralCode });
+      const userData = await api.getMe();
+      setUser(userData);
     } catch (err: any) {
       setError(err.message);
       throw err;
@@ -86,6 +86,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signIn,
     signUp,
     logout,
+    checkAuth,
     error
   };
 

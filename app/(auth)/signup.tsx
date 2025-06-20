@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -16,16 +16,31 @@ import { router } from 'expo-router';
 import { api } from '../../lib/api';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuth } from '../../contexts/AuthContext';
+
+const generateRandomCode = (length = 6) => {
+  return Math.random().toString(36).substring(2, length + 2).toUpperCase();
+};
 
 export default function SignUpScreen() {
   const insets = useSafeAreaInsets();
+  const { signUp } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [userType, setUserType] = useState<'patient' | 'caretaker'>('patient');
+  const [referralCode, setReferralCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  useEffect(() => {
+    if (userType === 'caretaker') {
+      setReferralCode(generateRandomCode());
+    } else {
+      setReferralCode('');
+    }
+  }, [userType]);
 
   const handleSignUp = async () => {
     if (!email || !password || !confirmPassword) {
@@ -40,12 +55,7 @@ export default function SignUpScreen() {
 
     try {
       setIsLoading(true);
-      const data = await api.register({ email, password, userType });
-      if (data.userType === 'patient') {
-        router.replace('/(tabs)/patient-info' as any);
-      } else {
-        router.replace('/(tabs)/caretaker-dashboard' as any);
-      }
+      await signUp(email, password, userType);
     } catch (err: any) {
       Alert.alert('Error', err.message || 'Failed to sign up');
     } finally {
@@ -111,6 +121,8 @@ export default function SignUpScreen() {
                 secureTextEntry={!showPassword}
                 editable={!isLoading}
                 placeholderTextColor="#999"
+                textContentType="password"
+                passwordRules={null}
               />
               <View style={styles.eyeIconContainer}>
                 <TouchableOpacity
@@ -135,6 +147,8 @@ export default function SignUpScreen() {
                 secureTextEntry={!showConfirmPassword}
                 editable={!isLoading}
                 placeholderTextColor="#999"
+                textContentType="password"
+                passwordRules={null}
               />
               <View style={styles.eyeIconContainer}>
                 <TouchableOpacity
@@ -150,6 +164,30 @@ export default function SignUpScreen() {
                 </TouchableOpacity>
               </View>
             </View>
+            {userType === 'patient' && (
+              <TextInput
+                style={styles.input}
+                placeholder="Referral Code (Optional)"
+                value={referralCode}
+                onChangeText={setReferralCode}
+                autoCapitalize="characters"
+                editable={!isLoading}
+                placeholderTextColor="#999"
+              />
+            )}
+            {userType === 'caretaker' && (
+              <View>
+                <Text style={styles.label}>Your Referral Code</Text>
+                <TextInput
+                  style={styles.input}
+                  value={referralCode}
+                  onChangeText={setReferralCode}
+                  autoCapitalize="characters"
+                  editable={!isLoading}
+                  placeholderTextColor="#999"
+                />
+              </View>
+            )}
             <TouchableOpacity 
               style={[styles.signupButton, isLoading && styles.signupButtonDisabled]}
               onPress={handleSignUp}
@@ -285,5 +323,11 @@ const styles = StyleSheet.create({
     height: 24,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  label: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 8,
+    marginLeft: 4,
   },
 }); 

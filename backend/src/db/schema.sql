@@ -1,8 +1,14 @@
+DROP TABLE IF EXISTS screenings CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+DROP FUNCTION IF EXISTS update_updated_at_column() CASCADE;
+
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     user_type VARCHAR(50) NOT NULL CHECK (user_type IN ('patient', 'caretaker')),
+    referral_code VARCHAR(255) UNIQUE,
+    caretaker_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -29,5 +35,16 @@ CREATE TABLE screenings (
     fallen BOOLEAN NOT NULL,
     fall_count INTEGER,
     fall_injured TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE falls (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    fall_date TIMESTAMP WITH TIME ZONE NOT NULL,
+    location VARCHAR(255),
+    activity VARCHAR(255),
+    cause TEXT,
+    injuries TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

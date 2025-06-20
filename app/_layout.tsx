@@ -1,10 +1,10 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Stack, SplashScreen } from 'expo-router';
+import { Stack, SplashScreen, useRouter, useSegments } from 'expo-router';
 import { useEffect } from 'react';
 import { useColorScheme, Platform } from 'react-native';
-import { AuthProvider } from '../contexts/AuthContext';
+import { AuthProvider, useAuth } from '../contexts/AuthContext';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -44,6 +44,21 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
+  const { user, loading } = useAuth();
+  const router = useRouter();
+  const segments = useSegments();
+
+  useEffect(() => {
+    if (loading) return;
+
+    const inAuthGroup = segments[0] === '(auth)';
+
+    if (user && inAuthGroup) {
+      router.replace('/(tabs)/screening');
+    } else if (!user && !inAuthGroup) {
+      router.replace('/login');
+    }
+  }, [user, loading, segments]);
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>

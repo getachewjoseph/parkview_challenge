@@ -3,6 +3,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth';
 import screeningRoutes from './routes/screening';
+import usersRoutes from './routes/users';
+import fallsRoutes from './routes/falls';
 
 dotenv.config();
 
@@ -27,6 +29,8 @@ app.get('/api/health', (req, res) => {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/screening', screeningRoutes);
+app.use('/api/users', usersRoutes);
+app.use('/api/falls', fallsRoutes);
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

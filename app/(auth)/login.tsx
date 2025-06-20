@@ -16,9 +16,11 @@ import { router } from 'expo-router';
 import { api } from '../../lib/api';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function LoginScreen() {
   const insets = useSafeAreaInsets();
+  const { signIn } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [userType, setUserType] = useState<'patient' | 'caretaker'>('patient');
@@ -33,12 +35,8 @@ export default function LoginScreen() {
 
     try {
       setIsLoading(true);
-      const data = await api.login({ email, password });
-      if (data.userType === 'patient') {
-        router.replace('/(tabs)/patient-info' as any);
-      } else {
-        router.replace('/(tabs)/caretaker-dashboard' as any);
-      }
+      await signIn(email, password);
+      // Navigation will be handled by the RootLayout
     } catch (err: any) {
       Alert.alert('Error', err.message || 'Failed to sign in');
     } finally {

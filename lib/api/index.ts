@@ -24,6 +24,7 @@ export interface LoginCredentials {
 
 export interface RegisterCredentials extends LoginCredentials {
   userType: 'patient' | 'caretaker';
+  referralCode?: string;
 }
 
 export interface ScreeningAnswers {
@@ -72,29 +73,18 @@ const handleResponse = async (response: Response) => {
 export const api = {
   async login(credentials: LoginCredentials) {
     try {
-      console.log('Attempting login with:', { ...credentials, password: '[REDACTED]' });
-      console.log('API URL:', `${API_URL}/auth/login`);
-      
       const response = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(credentials),
       });
-
       const data = await handleResponse(response);
-      console.log('Login response data:', { ...data, token: data.token ? '[REDACTED]' : null });
-      
       if (data.token) {
         await AsyncStorage.setItem('token', data.token);
         return data;
-      } else {
-        throw new Error('No token received');
       }
+      throw new Error('No token received');
     } catch (error) {
-      console.error('Login error:', error);
       if (error instanceof TypeError && error.message === 'Network request failed') {
         throw new Error('Cannot connect to server. Please check if the server is running.');
       }
@@ -104,28 +94,18 @@ export const api = {
 
   async register(credentials: RegisterCredentials) {
     try {
-      console.log('Attempting registration with:', { ...credentials, password: '[REDACTED]' });
-      
       const response = await fetch(`${API_URL}/auth/register`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(credentials),
       });
-
       const data = await handleResponse(response);
-      console.log('Registration response data:', { ...data, token: data.token ? '[REDACTED]' : null });
-      
       if (data.token) {
         await AsyncStorage.setItem('token', data.token);
         return data;
-      } else {
-        throw new Error('No token received');
       }
+      throw new Error('No token received');
     } catch (error) {
-      console.error('Registration error:', error);
       if (error instanceof TypeError && error.message === 'Network request failed') {
         throw new Error('Cannot connect to server. Please check if the server is running.');
       }
@@ -134,40 +114,93 @@ export const api = {
   },
 
   async logout() {
-    try {
-      await AsyncStorage.removeItem('token');
-    } catch (error) {
-      console.error('Logout error:', error);
-      throw error;
-    }
+    await AsyncStorage.removeItem('token');
   },
 
   async getToken() {
-    try {
-      return await AsyncStorage.getItem('token');
-    } catch (error) {
-      console.error('Get token error:', error);
-      return null;
-    }
+    return await AsyncStorage.getItem('token');
+  },
+
+  async getMe() {
+    const token = await this.getToken();
+    if (!token) throw new Error('Not authenticated');
+    const response = await fetch(`${API_URL}/auth/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return await handleResponse(response);
   },
 
   async submitScreening(answers: ScreeningAnswers) {
-    try {
-      const token = await this.getToken();
-      if (!token) throw new Error('Not authenticated');
-      const response = await fetch(`${API_URL}/screening`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(answers),
-      });
-      return await handleResponse(response);
-    } catch (error) {
-      console.error('Submit screening error:', error);
-      throw error;
-    }
+    const token = await this.getToken();
+    if (!token) throw new Error('Not authenticated');
+    const response = await fetch(`${API_URL}/screening`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(answers),
+    });
+    return await handleResponse(response);
   },
+  
+  async getReferralCode() {
+    const token = await this.getToken();
+    if (!token) throw new Error('Not authenticated');
+    const response = await fetch(`${API_URL}/auth/referral-code`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return await handleResponse(response);
+  },
+
+  async updateReferralCode(newCode: string) {
+    const token = await this.getToken();
+    if (!token) throw new Error('Not authenticated');
+    const response = await fetch(`${API_URL}/auth/referral-code`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ referralCode: newCode }),
+    });
+    return await handleResponse(response);
+  },
+
+  async linkCaretaker(referralCode: string) {
+    const token = await this.getToken();
+    if (!token) throw new Error('Not authenticated');
+    const response = await fetch(`${API_URL}/users/me/link-caretaker`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ referralCode }),
+    });
+    return await handleResponse(response);
+  },
+
+  async getFallLog() {
+    const token = await this.getToken();
+    if (!token) throw new Error('Not authenticated');
+    const response = await fetch(`${API_URL}/falls`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return await handleResponse(response);
+  },
+
+  async logFall(fallData: any) {
+    const token = await this.getToken();
+    if (!token) throw new Error('Not authenticated');
+    const response = await fetch(`${API_URL}/falls`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(fallData),
+    });
+    return await handleResponse(response);
+  }
 };

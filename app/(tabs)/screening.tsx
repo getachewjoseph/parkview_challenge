@@ -9,6 +9,7 @@ import {
   Animated,
   Platform,
   StatusBar,
+  SafeAreaView,
 } from 'react-native';
 import { api } from '../../lib/api';
 
@@ -52,61 +53,63 @@ export default function SteadiScreening() {
   };
 
   return (
-    <Animated.ScrollView
-      style={[
-        styles.container,
-        {
-          paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight ?? 24 : 24,
-          opacity: fadeAnim,
-        },
-      ]}
-    >
-      <Text style={styles.title}>🧠 Fall Risk Screening</Text>
-      <Text style={styles.subtitle}>NIH STEADI-3 Questionnaire</Text>
+    <SafeAreaView style={styles.safeArea}>
+      <Animated.ScrollView
+        style={[
+          styles.container,
+          {
+            paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight ?? 24 : 24,
+            opacity: fadeAnim,
+          },
+        ]}
+      >
+        <Text style={styles.title}>Fall Risk Screening</Text>
+        <Text style={styles.subtitle}>NIH STEADI-3 Questionnaire</Text>
 
-      <Question
-        text="1. Do you feel unsteady when standing or walking?"
-        value={answers.unsteady}
-        onChange={(val) => handleAnswer('unsteady', val)}
-      />
+        <Question
+          text="1. Do you feel unsteady when standing or walking?"
+          value={answers.unsteady}
+          onChange={(val) => handleAnswer('unsteady', val)}
+        />
 
-      <Question
-        text="2. Do you worry about falling?"
-        value={answers.worries}
-        onChange={(val) => handleAnswer('worries', val)}
-      />
+        <Question
+          text="2. Do you worry about falling?"
+          value={answers.worries}
+          onChange={(val) => handleAnswer('worries', val)}
+        />
 
-      <Question
-        text="3. Have you fallen in the past year?"
-        value={answers.fallen}
-        onChange={(val) => handleAnswer('fallen', val)}
-      />
+        <Question
+          text="3. Have you fallen in the past year?"
+          value={answers.fallen}
+          onChange={(val) => handleAnswer('fallen', val)}
+        />
 
-      {answers.fallen === 'Yes' && (
-        <View style={styles.extraSection}>
-          <Text style={styles.extraLabel}>How many times?</Text>
-          <TextInput
-            style={styles.input}
-            keyboardType="numeric"
-            placeholder="e.g., 2"
-            value={answers.fallCount}
-            onChangeText={(val) => handleAnswer('fallCount', val)}
-          />
+        {answers.fallen === 'Yes' && (
+          <View style={styles.extraSection}>
+            <Text style={styles.extraLabel}>How many times?</Text>
+            <TextInput
+              style={styles.input}
+              keyboardType="numeric"
+              placeholder="e.g., 2"
+              value={answers.fallCount}
+              onChangeText={(val) => handleAnswer('fallCount', val)}
+            />
 
-          <Text style={styles.extraLabel}>Were you injured?</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Describe injury"
-            value={answers.fallInjured}
-            onChangeText={(val) => handleAnswer('fallInjured', val)}
-          />
-        </View>
-      )}
+            <Text style={styles.extraLabel}>Were you injured?</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Describe injury"
+              value={answers.fallInjured}
+              onChangeText={(val) => handleAnswer('fallInjured', val)}
+            />
+          </View>
+        )}
 
-      <Pressable style={[styles.button, styles.submitButton]} onPress={handleSubmit}>
-        <Text style={styles.buttonText}>Submit Answers</Text>
-      </Pressable>
-    </Animated.ScrollView>
+        <Pressable style={[styles.button, styles.submitButton]} onPress={handleSubmit}>
+          <Text style={styles.buttonText}>Submit Answers</Text>
+        </Pressable>
+      </Animated.ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -141,6 +144,10 @@ function Question({
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#f4f6f8',
+  },
   container: {
     flex: 1,
     backgroundColor: '#f4f6f8',
