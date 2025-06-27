@@ -24,7 +24,7 @@ const generateReferralCode = async (): Promise<string> => {
 // Register
 router.post('/register', async (req, res) => {
   try {
-    const { email, password, userType, referralCode } = req.body;
+    const { email, password, fullName, userType, referralCode } = req.body;
 
     // Check if user exists
     const userExists = await pool.query(
@@ -65,8 +65,8 @@ router.post('/register', async (req, res) => {
 
     // Create user
     const result = await pool.query(
-      'INSERT INTO users (email, password_hash, user_type, referral_code, caretaker_id) VALUES ($1, $2, $3, $4, $5) RETURNING id, referral_code',
-      [email, passwordHash, userType, finalReferralCode, caretakerId]
+      'INSERT INTO users (email, password_hash, full_name, user_type, referral_code, caretaker_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, referral_code',
+      [email, passwordHash, fullName, userType, finalReferralCode, caretakerId]
     );
 
     const newUser = result.rows[0];

@@ -28,6 +28,7 @@ export default function SignUpScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [fullName, setFullName] = useState('');
   const [userType, setUserType] = useState<'patient' | 'caretaker'>('patient');
   const [referralCode, setReferralCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -43,7 +44,7 @@ export default function SignUpScreen() {
   }, [userType]);
 
   const handleSignUp = async () => {
-    if (!email || !password || !confirmPassword) {
+    if (!email || !password || !confirmPassword || !fullName) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
@@ -55,7 +56,7 @@ export default function SignUpScreen() {
 
     try {
       setIsLoading(true);
-      await signUp(email, password, userType);
+      await signUp(email, password, fullName, userType);
     } catch (err: any) {
       Alert.alert('Error', err.message || 'Failed to sign up');
     } finally {
@@ -102,6 +103,15 @@ export default function SignUpScreen() {
           </View>
 
           <View style={styles.formContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder="Full Name"
+              value={fullName}
+              onChangeText={setFullName}
+              autoCapitalize="words"
+              editable={!isLoading}
+              placeholderTextColor="#999"
+            />
             <TextInput
               style={styles.input}
               placeholder="Email"
@@ -288,7 +298,7 @@ const styles = StyleSheet.create({
   },
   signupButtonText: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
   },
   loginLink: {

@@ -14,7 +14,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, userType: 'patient' | 'caretaker', referralCode?: string) => Promise<void>;
+  signUp: (email: string, password: string, fullName: string, userType: 'patient' | 'caretaker', referralCode?: string) => Promise<void>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
   error: string | null;
@@ -57,10 +57,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const signUp = async (email: string, password: string, userType: 'patient' | 'caretaker', referralCode?: string) => {
+  const signUp = async (email: string, password: string, fullName: string, userType: 'patient' | 'caretaker', referralCode?: string) => {
     try {
       setError(null);
-      await api.register({ email, password, userType, referralCode });
+      await api.register({ email, password, fullName, userType, referralCode });
       const userData = await api.getMe();
       setUser(userData);
     } catch (err: any) {

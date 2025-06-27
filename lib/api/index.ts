@@ -23,6 +23,7 @@ export interface LoginCredentials {
 }
 
 export interface RegisterCredentials extends LoginCredentials {
+  fullName: string;
   userType: 'patient' | 'caretaker';
   referralCode?: string;
 }

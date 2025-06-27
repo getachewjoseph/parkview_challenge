@@ -6,6 +6,7 @@ CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
+    full_name VARCHAR(255) NOT NULL,
     user_type VARCHAR(50) NOT NULL CHECK (user_type IN ('patient', 'caretaker')),
     referral_code VARCHAR(255) UNIQUE,
     caretaker_id INTEGER REFERENCES users(id) ON DELETE SET NULL,

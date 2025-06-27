@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
   },
   signupLinkText: {
     color: '#2E7D32',
-    fontSize: 16,
+    fontSize: 20,
   },
   passwordContainer: {
     position: 'relative',
