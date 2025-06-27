@@ -55,6 +55,13 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="tai-chi-map"
+        options={{
+          title: 'Tai-Chi Map',
+          tabBarIcon: ({ color }) => <FontAwesome name="map-marker" size={24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="settings"
         options={{
           title: 'Settings',
