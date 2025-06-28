@@ -182,6 +182,24 @@ export const api = {
     return await handleResponse(response);
   },
 
+  async getPatients() {
+    const token = await this.getToken();
+    if (!token) throw new Error('Not authenticated');
+    const response = await fetch(`${API_URL}/users/me/patients`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return await handleResponse(response);
+  },
+
+  async getPatientDetails(patientId: number) {
+    const token = await this.getToken();
+    if (!token) throw new Error('Not authenticated');
+    const response = await fetch(`${API_URL}/users/me/patients/${patientId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return await handleResponse(response);
+  },
+
   async getFallLog() {
     const token = await this.getToken();
     if (!token) throw new Error('Not authenticated');
@@ -203,5 +221,34 @@ export const api = {
       body: JSON.stringify(fallData),
     });
     return await handleResponse(response);
-  }
+  },
+
+  async submitExercise({ weekStart, minutes }: { weekStart: string, minutes: number }) {
+    const token = await this.getToken();
+    if (!token) throw new Error('Not authenticated');
+    const response = await fetch(`${API_URL}/users/me/exercise`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ weekStart, minutes }),
+    });
+    return await handleResponse(response);
+  },
+
+  async getPatientExercise(patientId: number) {
+    const token = await this.getToken();
+    if (!token) throw new Error('Not authenticated');
+    const response = await fetch(`${API_URL}/users/me/patients/${patientId}/exercise`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return await handleResponse(response);
+  },
+
+  async getCurrentWeekExercise(weekStart: string) {
+    const token = await this.getToken();
+    if (!token) throw new Error('Not authenticated');
+    const response = await fetch(`${API_URL}/users/me/exercise?weekStart=${weekStart}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return await handleResponse(response);
+  },
 };

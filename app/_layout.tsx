@@ -5,6 +5,7 @@ import { Stack, SplashScreen, useRouter, useSegments } from 'expo-router';
 import { useEffect } from 'react';
 import { useColorScheme, Platform } from 'react-native';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
+import { Inter_400Regular, Inter_700Bold, Inter_800ExtraBold } from '@expo-google-fonts/inter';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -16,6 +17,9 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
+    Inter_400Regular,
+    Inter_700Bold,
+    Inter_800ExtraBold,
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
     ...FontAwesome.font,
   });
@@ -54,7 +58,11 @@ function RootLayoutNav() {
     const inAuthGroup = segments[0] === '(auth)';
 
     if (user && inAuthGroup) {
-      router.replace('/(tabs)/screening');
+      if (user.userType === 'caretaker') {
+        router.replace('/(tabs)/caretaker-dashboard');
+      } else {
+        router.replace('/(tabs)/screening');
+      }
     } else if (!user && !inAuthGroup) {
       router.replace('/login');
     }

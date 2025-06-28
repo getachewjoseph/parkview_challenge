@@ -10,8 +10,18 @@ import {
   Platform,
   StatusBar,
   SafeAreaView,
+  Alert,
 } from 'react-native';
 import { api } from '../../lib/api';
+
+function getCurrentWeekStart() {
+  const now = new Date();
+  const day = now.getDay();
+  const diff = now.getDate() - day + (day === 0 ? -6 : 1); // Monday as start
+  const monday = new Date(now.setDate(diff));
+  monday.setHours(0, 0, 0, 0);
+  return monday.toISOString().slice(0, 10);
+}
 
 export default function SteadiScreening() {
   const [answers, setAnswers] = useState({
@@ -21,7 +31,9 @@ export default function SteadiScreening() {
     fallCount: '',
     fallInjured: '',
   });
-
+  const [exerciseMinutes, setExerciseMinutes] = useState('');
+  const [lastExercise, setLastExercise] = useState<number | null>(null);
+  const [exerciseLoading, setExerciseLoading] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -30,14 +42,30 @@ export default function SteadiScreening() {
       duration: 500,
       useNativeDriver: true,
     }).start();
+    fetchExercise();
   }, []);
+
+  const fetchExercise = async () => {
+    try {
+      setExerciseLoading(true);
+      const weekStart = getCurrentWeekStart();
+      const response = await api.getCurrentWeekExercise(weekStart);
+      if (response.exercise_logs && response.exercise_logs.length > 0) {
+        setLastExercise(response.exercise_logs[0].minutes);
+      }
+    } catch (error) {
+      // Silently fail if no exercise data exists yet
+      console.log('No exercise data for current week');
+    } finally {
+      setExerciseLoading(false);
+    }
+  };
 
   const handleAnswer = (key: string, value: string) => {
     setAnswers((prev) => ({ ...prev, [key]: value }));
   };
 
   const handleSubmit = async () => {
-    console.log('Submitted Answers:', answers);
     try {
       await api.submitScreening({
         unsteady: answers.unsteady === 'Yes',
@@ -49,6 +77,24 @@ export default function SteadiScreening() {
       alert('Answers submitted!');
     } catch (err: any) {
       alert('Failed to submit: ' + (err.message || 'Unknown error'));
+    }
+  };
+
+  const handleExerciseSubmit = async () => {
+    if (!exerciseMinutes || isNaN(Number(exerciseMinutes))) {
+      Alert.alert('Error', 'Please enter the number of minutes exercised.');
+      return;
+    }
+    try {
+      setExerciseLoading(true);
+      const weekStart = getCurrentWeekStart();
+      const res = await api.submitExercise({ weekStart, minutes: Number(exerciseMinutes) });
+      setLastExercise(res.exercise.minutes);
+      Alert.alert('Success', 'Exercise log submitted!');
+    } catch (err: any) {
+      Alert.alert('Failed to submit: ' + (err.message || 'Unknown error'));
+    } finally {
+      setExerciseLoading(false);
     }
   };
 
@@ -108,6 +154,32 @@ export default function SteadiScreening() {
         <Pressable style={[styles.button, styles.submitButton]} onPress={handleSubmit}>
           <Text style={styles.buttonText}>Submit Answers</Text>
         </Pressable>
+
+        {/* Exercise Section */}
+        <View style={styles.exerciseSection}>
+          <Text style={styles.exerciseTitle}>Weekly Exercise</Text>
+          <Text style={styles.exerciseLabel}>How many minutes of exercise did you do this week?</Text>
+          <TextInput
+            style={styles.input}
+            keyboardType="numeric"
+            placeholder="e.g., 150"
+            value={exerciseMinutes}
+            onChangeText={setExerciseMinutes}
+            editable={!exerciseLoading}
+          />
+          {lastExercise !== null && (
+            <Text style={styles.exerciseInfo}>
+              Last submitted for this week: <Text style={{ fontWeight: 'bold' }}>{lastExercise} minutes</Text>
+            </Text>
+          )}
+          <Pressable
+            style={[styles.button, styles.exerciseButton]}
+            onPress={handleExerciseSubmit}
+            disabled={exerciseLoading}
+          >
+            <Text style={styles.buttonText}>{exerciseLoading ? 'Submitting...' : 'Submit Exercise'}</Text>
+          </Pressable>
+        </View>
       </Animated.ScrollView>
     </SafeAreaView>
   );
@@ -217,5 +289,36 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     marginTop: 10,
+  },
+  exerciseSection: {
+    marginTop: 36,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  exerciseTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#2E7D32',
+    marginBottom: 8,
+  },
+  exerciseLabel: {
+    fontSize: 16,
+    color: '#333',
+    marginBottom: 8,
+  },
+  exerciseInfo: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 8,
+  },
+  exerciseButton: {
+    backgroundColor: '#2E7D32',
+    marginTop: 8,
   },
 });

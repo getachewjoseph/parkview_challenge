@@ -22,14 +22,16 @@ export default function TabLayout() {
         tabBarInactiveTintColor: '#666',
         headerShown: false,
       }}>
-      <Tabs.Screen
-        name="screening"
-        options={{
-          title: 'Screening',
-          tabBarIcon: ({ color }) => <FontAwesome name="check-square-o" size={24} color={color} />,
-          href: user.userType === 'patient' ? '/(tabs)/screening' : null,
-        }}
-      />
+      {user.userType === 'patient' && (
+        <Tabs.Screen
+          name="screening"
+          options={{
+            title: 'Screening',
+            tabBarIcon: ({ color }) => <FontAwesome name="check-square-o" size={24} color={color} />,
+            href: '/(tabs)/screening',
+          }}
+        />
+      )}
       <Tabs.Screen
         name="patient-info"
         options={{
@@ -55,10 +57,18 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="patient-details"
+        options={{
+          title: 'Patient Details',
+          href: null, // Hidden from tab bar
+        }}
+      />
+      <Tabs.Screen
         name="tai-chi-map"
         options={{
           title: 'Tai-Chi Map',
           tabBarIcon: ({ color }) => <FontAwesome name="map-marker" size={24} color={color} />,
+          href: user.userType === 'patient' ? '/(tabs)/tai-chi-map' : null,
         }}
       />
       <Tabs.Screen

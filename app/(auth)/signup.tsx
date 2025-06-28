@@ -10,7 +10,8 @@ import {
   Platform,
   ScrollView,
   SafeAreaView,
-  StatusBar
+  StatusBar,
+  Image
 } from 'react-native';
 import { router } from 'expo-router';
 import { api } from '../../lib/api';
@@ -77,8 +78,13 @@ export default function SignUpScreen() {
           bounces={false}
         >
           <View style={styles.logoContainer}>
-            <Text style={styles.title}>FallGuard</Text>
-            <Text style={styles.subtitle}>Create Your Account</Text>
+            <View style={styles.logoCropContainer}>
+              <Image
+                source={require('../../assets/images/fallguard-logo.png')}
+                style={styles.logoImage}
+                resizeMode="contain"
+              />
+            </View>
           </View>
 
           <View style={styles.userTypeContainer}>
@@ -102,122 +108,120 @@ export default function SignUpScreen() {
             </TouchableOpacity>
           </View>
 
-          <View style={styles.formContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Full Name"
+            value={fullName}
+            onChangeText={setFullName}
+            autoCapitalize="words"
+            editable={!isLoading}
+            placeholderTextColor="#999"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            editable={!isLoading}
+            placeholderTextColor="#999"
+          />
+          <View style={styles.passwordContainer}>
+            <TextInput
+              style={[styles.input, styles.passwordInput]}
+              placeholder="Password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+              editable={!isLoading}
+              placeholderTextColor="#999"
+              textContentType="none"
+              autoComplete="off"
+            />
+            <View style={styles.eyeIconContainer}>
+              <TouchableOpacity
+                style={styles.eyeIcon}
+                onPressIn={() => setShowPassword(true)}
+                onPressOut={() => setShowPassword(false)}
+              >
+                <Ionicons
+                  name={showPassword ? 'eye-off' : 'eye'}
+                  size={24}
+                  color="#666"
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+          <View style={styles.passwordContainer}>
+            <TextInput
+              style={[styles.input, styles.passwordInput]}
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              secureTextEntry={!showConfirmPassword}
+              editable={!isLoading}
+              placeholderTextColor="#999"
+              textContentType="none"
+              autoComplete="off"
+            />
+            <View style={styles.eyeIconContainer}>
+              <TouchableOpacity
+                style={styles.eyeIcon}
+                onPressIn={() => setShowConfirmPassword(true)}
+                onPressOut={() => setShowConfirmPassword(false)}
+              >
+                <Ionicons
+                  name={showConfirmPassword ? 'eye-off' : 'eye'}
+                  size={24}
+                  color="#666"
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+          {userType === 'patient' && (
             <TextInput
               style={styles.input}
-              placeholder="Full Name"
-              value={fullName}
-              onChangeText={setFullName}
-              autoCapitalize="words"
+              placeholder="Referral Code (Optional)"
+              value={referralCode}
+              onChangeText={setReferralCode}
+              autoCapitalize="characters"
               editable={!isLoading}
               placeholderTextColor="#999"
             />
-            <TextInput
-              style={styles.input}
-              placeholder="Email"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              editable={!isLoading}
-              placeholderTextColor="#999"
-            />
-            <View style={styles.passwordContainer}>
-              <TextInput
-                style={[styles.input, styles.passwordInput]}
-                placeholder="Password"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry={!showPassword}
-                editable={!isLoading}
-                placeholderTextColor="#999"
-                textContentType="password"
-                passwordRules={null}
-              />
-              <View style={styles.eyeIconContainer}>
-                <TouchableOpacity
-                  style={styles.eyeIcon}
-                  onPressIn={() => setShowPassword(true)}
-                  onPressOut={() => setShowPassword(false)}
-                >
-                  <Ionicons
-                    name={showPassword ? 'eye-off' : 'eye'}
-                    size={24}
-                    color="#666"
-                  />
-                </TouchableOpacity>
-              </View>
-            </View>
-            <View style={styles.passwordContainer}>
-              <TextInput
-                style={[styles.input, styles.passwordInput]}
-                placeholder="Confirm Password"
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-                secureTextEntry={!showConfirmPassword}
-                editable={!isLoading}
-                placeholderTextColor="#999"
-                textContentType="password"
-                passwordRules={null}
-              />
-              <View style={styles.eyeIconContainer}>
-                <TouchableOpacity
-                  style={styles.eyeIcon}
-                  onPressIn={() => setShowConfirmPassword(true)}
-                  onPressOut={() => setShowConfirmPassword(false)}
-                >
-                  <Ionicons
-                    name={showConfirmPassword ? 'eye-off' : 'eye'}
-                    size={24}
-                    color="#666"
-                  />
-                </TouchableOpacity>
-              </View>
-            </View>
-            {userType === 'patient' && (
+          )}
+          {userType === 'caretaker' && (
+            <View>
+              <Text style={styles.label}>Your Referral Code</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Referral Code (Optional)"
                 value={referralCode}
                 onChangeText={setReferralCode}
                 autoCapitalize="characters"
                 editable={!isLoading}
                 placeholderTextColor="#999"
               />
-            )}
-            {userType === 'caretaker' && (
-              <View>
-                <Text style={styles.label}>Your Referral Code</Text>
-                <TextInput
-                  style={styles.input}
-                  value={referralCode}
-                  onChangeText={setReferralCode}
-                  autoCapitalize="characters"
-                  editable={!isLoading}
-                  placeholderTextColor="#999"
-                />
-              </View>
-            )}
-            <TouchableOpacity 
-              style={[styles.signupButton, isLoading && styles.signupButtonDisabled]}
-              onPress={handleSignUp}
-              disabled={isLoading}
-            >
-              <Text style={styles.signupButtonText}>
-                {isLoading ? 'Creating Account...' : 'Sign Up'}
-              </Text>
-            </TouchableOpacity>
+            </View>
+          )}
+          <TouchableOpacity 
+            style={[styles.signupButton, isLoading && styles.signupButtonDisabled]}
+            onPress={handleSignUp}
+            disabled={isLoading}
+          >
+            <Text style={styles.signupButtonText}>
+              {isLoading ? 'Creating Account...' : 'Sign Up'}
+            </Text>
+          </TouchableOpacity>
 
-            <TouchableOpacity 
-              style={styles.loginLink}
-              onPress={() => router.back()}
-              disabled={isLoading}
-            >
-              <Text style={styles.loginLinkText}>
-                Already have an account? Sign In
-              </Text>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity 
+            style={styles.loginLink}
+            onPress={() => router.back()}
+            disabled={isLoading}
+          >
+            <Text style={styles.loginLinkText}>
+              Already have an account? Log in
+            </Text>
+          </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -231,39 +235,46 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: 'transparent',
   },
   scrollContent: {
     flexGrow: 1,
-    padding: 20,
-    paddingTop: Platform.OS === 'ios' ? 20 : 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: 36,
+    backgroundColor: 'transparent',
   },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#2E7D32',
-    marginBottom: 8,
+  logoCropContainer: {
+    width: 420,
+    height: 150,
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  subtitle: {
-    fontSize: 18,
-    color: '#666',
+  logoImage: {
+    width: 420,
+    height: 180,
+    marginTop: -10,
+    alignSelf: 'center',
   },
   userTypeContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: 30,
+    marginBottom: 18,
+    gap: 12,
   },
   userTypeButton: {
     paddingVertical: 10,
     paddingHorizontal: 30,
-    marginHorizontal: 10,
     borderRadius: 20,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: '#2E7D32',
+    backgroundColor: '#fff',
+    marginHorizontal: 4,
   },
   selectedUserType: {
     backgroundColor: '#2E7D32',
@@ -271,56 +282,38 @@ const styles = StyleSheet.create({
   userTypeText: {
     color: '#2E7D32',
     fontSize: 16,
+    fontWeight: 'bold',
+    fontFamily: Platform.OS === 'ios' ? 'Helvetica Neue' : 'sans-serif',
   },
   selectedUserTypeText: {
     color: '#fff',
   },
-  formContainer: {
-    width: '100%',
-  },
   input: {
-    backgroundColor: '#f5f5f5',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 15,
+    backgroundColor: 'transparent',
+    paddingVertical: 14,
+    paddingHorizontal: 0,
+    borderRadius: 0,
+    marginBottom: 18,
     fontSize: 16,
-    color: '#333',
-  },
-  signupButton: {
-    backgroundColor: '#2E7D32',
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  signupButtonDisabled: {
-    opacity: 0.7,
-  },
-  signupButtonText: {
-    color: '#fff',
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  loginLink: {
-    marginTop: 20,
-    alignItems: 'center',
-  },
-  loginLinkText: {
-    color: '#2E7D32',
-    fontSize: 16,
+    color: '#222',
+    borderBottomWidth: 1.2,
+    borderBottomColor: '#bdbdbd',
+    width: 320,
+    fontFamily: Platform.OS === 'ios' ? 'Helvetica Neue' : 'sans-serif',
   },
   passwordContainer: {
     position: 'relative',
-    marginBottom: 15,
-    height: 50,
+    marginBottom: 18,
+    height: 56,
+    width: 320,
   },
   passwordInput: {
     paddingRight: 50,
-    height: 50,
+    height: 56,
   },
   eyeIconContainer: {
     position: 'absolute',
-    right: 15,
+    right: 0,
     top: '50%',
     transform: [{ translateY: -12 }],
     width: 24,
@@ -333,6 +326,35 @@ const styles = StyleSheet.create({
     height: 24,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  signupButton: {
+    backgroundColor: '#2E7D32',
+    paddingVertical: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 8,
+    width: 320,
+  },
+  signupButtonDisabled: {
+    opacity: 0.7,
+  },
+  signupButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    letterSpacing: 0.5,
+    fontFamily: Platform.OS === 'ios' ? 'Helvetica Neue' : 'sans-serif',
+  },
+  loginLink: {
+    marginTop: 18,
+    alignItems: 'center',
+  },
+  loginLinkText: {
+    color: '#2E7D32',
+    fontSize: 16,
+    fontWeight: 'bold',
+    opacity: 0.85,
+    fontFamily: Platform.OS === 'ios' ? 'Helvetica Neue' : 'sans-serif',
   },
   label: {
     fontSize: 16,
