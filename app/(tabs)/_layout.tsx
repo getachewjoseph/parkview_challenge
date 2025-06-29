@@ -22,16 +22,14 @@ export default function TabLayout() {
         tabBarInactiveTintColor: '#666',
         headerShown: false,
       }}>
-      {user.userType === 'patient' && (
-        <Tabs.Screen
-          name="screening"
-          options={{
-            title: 'Screening',
-            tabBarIcon: ({ color }) => <FontAwesome name="check-square-o" size={24} color={color} />,
-            href: '/(tabs)/screening',
-          }}
-        />
-      )}
+      <Tabs.Screen
+        name="screening"
+        options={{
+          title: 'Screening',
+          tabBarIcon: ({ color }) => <FontAwesome name="check-square-o" size={24} color={color} />,
+          href: user.userType === 'patient' ? '/(tabs)/screening' : null,
+        }}
+      />
       <Tabs.Screen
         name="patient-info"
         options={{

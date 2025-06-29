@@ -93,7 +93,7 @@ export default function LoginScreen() {
               disabled={isLoading}
             >
               <Text style={[styles.userTypeText, userType === 'caretaker' && styles.selectedUserTypeText]}>
-                Caretaker
+                Caregiver
               </Text>
             </TouchableOpacity>
           </View>
