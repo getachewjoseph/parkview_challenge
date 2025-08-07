@@ -6,6 +6,7 @@ import screeningRoutes from './routes/screening';
 import usersRoutes from './routes/users';
 import fallsRoutes from './routes/falls';
 import exerciseRoutes from './routes/exercise';
+import favoritesRoutes from './routes/favorites';
 
 dotenv.config();
 
@@ -33,6 +34,7 @@ app.use('/api/screening', screeningRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/falls', fallsRoutes);
 app.use('/api', exerciseRoutes);
+app.use('/api/tai-chi', favoritesRoutes);
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

@@ -251,4 +251,33 @@ export const api = {
     });
     return await handleResponse(response);
   },
+
+  async getFavorites() {
+    const token = await this.getToken();
+    if (!token) throw new Error('Not authenticated');
+    const response = await fetch(`${API_URL}/tai-chi/favorites`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return await handleResponse(response);
+  },
+
+  async addFavorite(locationId: number) {
+    const token = await this.getToken();
+    if (!token) throw new Error('Not authenticated');
+    const response = await fetch(`${API_URL}/tai-chi/favorites/${locationId}`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return await handleResponse(response);
+  },
+
+  async removeFavorite(locationId: number) {
+    const token = await this.getToken();
+    if (!token) throw new Error('Not authenticated');
+    const response = await fetch(`${API_URL}/tai-chi/favorites/${locationId}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return await handleResponse(response);
+  },
 };
