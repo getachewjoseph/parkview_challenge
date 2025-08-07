@@ -13,6 +13,7 @@ import {
   Alert,
 } from 'react-native';
 import { api } from '../../lib/api';
+import { hapticFeedback } from '../../lib/haptics';
 
 function getCurrentWeekStart() {
   const now = new Date();
@@ -67,6 +68,7 @@ export default function SteadiScreening() {
 
   const handleSubmit = async () => {
     try {
+      hapticFeedback.formSubmit();
       await api.submitScreening({
         unsteady: answers.unsteady === 'Yes',
         worries: answers.worries === 'Yes',
@@ -74,24 +76,30 @@ export default function SteadiScreening() {
         fallCount: answers.fallCount,
         fallInjured: answers.fallInjured,
       });
+      hapticFeedback.success();
       alert('Answers submitted!');
     } catch (err: any) {
+      hapticFeedback.error();
       alert('Failed to submit: ' + (err.message || 'Unknown error'));
     }
   };
 
   const handleExerciseSubmit = async () => {
     if (!exerciseMinutes || isNaN(Number(exerciseMinutes))) {
+      hapticFeedback.error();
       Alert.alert('Error', 'Please enter the number of minutes exercised.');
       return;
     }
     try {
       setExerciseLoading(true);
+      hapticFeedback.formSubmit();
       const weekStart = getCurrentWeekStart();
       const res = await api.submitExercise({ weekStart, minutes: Number(exerciseMinutes) });
       setLastExercise(res.exercise.minutes);
+      hapticFeedback.success();
       Alert.alert('Success', 'Exercise log submitted!');
     } catch (err: any) {
+      hapticFeedback.error();
       Alert.alert('Failed to submit: ' + (err.message || 'Unknown error'));
     } finally {
       setExerciseLoading(false);
@@ -151,7 +159,13 @@ export default function SteadiScreening() {
           </View>
         )}
 
-        <Pressable style={[styles.button, styles.submitButton]} onPress={handleSubmit}>
+        <Pressable 
+          style={[styles.button, styles.submitButton]} 
+          onPress={() => {
+            hapticFeedback.buttonPress();
+            handleSubmit();
+          }}
+        >
           <Text style={styles.buttonText}>Submit Answers</Text>
         </Pressable>
 
@@ -174,7 +188,10 @@ export default function SteadiScreening() {
           )}
           <Pressable
             style={[styles.button, styles.exerciseButton]}
-            onPress={handleExerciseSubmit}
+            onPress={() => {
+              hapticFeedback.buttonPress();
+              handleExerciseSubmit();
+            }}
             disabled={exerciseLoading}
           >
             <Text style={styles.buttonText}>{exerciseLoading ? 'Submitting...' : 'Submit Exercise'}</Text>
@@ -200,13 +217,19 @@ function Question({
       <View style={styles.buttonRow}>
         <Pressable
           style={[styles.button, value === 'Yes' && styles.selected]}
-          onPress={() => onChange('Yes')}
+          onPress={() => {
+            hapticFeedback.toggle();
+            onChange('Yes');
+          }}
         >
           <Text style={styles.buttonText}>Yes</Text>
         </Pressable>
         <Pressable
           style={[styles.button, value === 'No' && styles.selected]}
-          onPress={() => onChange('No')}
+          onPress={() => {
+            hapticFeedback.toggle();
+            onChange('No');
+          }}
         >
           <Text style={styles.buttonText}>No</Text>
         </Pressable>

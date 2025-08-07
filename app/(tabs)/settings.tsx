@@ -16,6 +16,7 @@ import { StatusBar } from 'expo-status-bar';
 import { api } from '../../lib/api';
 import { useAuth } from '../../contexts/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
+import { hapticFeedback } from '../../lib/haptics';
 
 interface SettingsItem {
   id: string;
@@ -61,12 +62,15 @@ export default function SettingsScreen() {
   const handleUpdateReferralCode = async () => {
     try {
       setUpdating(true);
+      hapticFeedback.formSubmit();
       const data = await api.updateReferralCode(newReferralCode);
       setReferralCode(data.referralCode);
       setNewReferralCode(data.referralCode);
       setShowReferralModal(false);
+      hapticFeedback.success();
       Alert.alert('Success', 'Referral code updated successfully');
     } catch (error: any) {
+      hapticFeedback.error();
       Alert.alert('Error', error.message || 'Failed to update referral code');
     } finally {
       setUpdating(false);
@@ -75,16 +79,20 @@ export default function SettingsScreen() {
 
   const handleLinkCaretaker = async () => {
     if (!patientReferralCode) {
+      hapticFeedback.error();
       Alert.alert('Error', 'Please enter a referral code.');
       return;
     }
     try {
       setUpdating(true);
+      hapticFeedback.formSubmit();
       await api.linkCaretaker(patientReferralCode);
       await checkAuth();
       setShowLinkModal(false);
+      hapticFeedback.success();
       Alert.alert('Success', 'You have been successfully linked to your caretaker.');
     } catch (error: any) {
+      hapticFeedback.error();
       Alert.alert('Error', error.message || 'Failed to link caretaker.');
     } finally {
       setUpdating(false);
@@ -92,12 +100,16 @@ export default function SettingsScreen() {
   };
 
   const handleLogout = async () => {
+    hapticFeedback.buttonPress();
     Alert.alert(
       'Logout',
       'Are you sure you want to logout?',
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Logout', style: 'destructive', onPress: logout }
+        { text: 'Logout', style: 'destructive', onPress: () => {
+          hapticFeedback.critical();
+          logout();
+        }}
       ]
     );
   };
@@ -107,7 +119,12 @@ export default function SettingsScreen() {
       <TouchableOpacity
         key={item.id}
         style={styles.settingsItem}
-        onPress={item.onPress}
+        onPress={() => {
+          if (item.onPress) {
+            hapticFeedback.buttonPress();
+            item.onPress();
+          }
+        }}
         disabled={item.type === 'info'}
       >
         <View style={styles.settingsItemLeft}>
@@ -125,7 +142,12 @@ export default function SettingsScreen() {
         {item.type === 'toggle' && (
           <Switch
             value={item.value}
-            onValueChange={item.onValueChange}
+            onValueChange={(value) => {
+              hapticFeedback.toggle();
+              if (item.onValueChange) {
+                item.onValueChange(value);
+              }
+            }}
             trackColor={{ false: '#e0e0e0', true: '#2E7D32' }}
             thumbColor={item.value ? '#fff' : '#f4f3f4'}
           />

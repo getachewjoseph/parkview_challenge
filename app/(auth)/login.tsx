@@ -19,6 +19,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../contexts/AuthContext';
 import { useFonts, Inter_400Regular, Inter_700Bold, Inter_800ExtraBold } from '@expo-google-fonts/inter';
+import { hapticFeedback } from '../../lib/haptics';
 
 export default function LoginScreen() {
   const insets = useSafeAreaInsets();
@@ -36,15 +37,19 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     if (!email || !password) {
+      hapticFeedback.error();
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
 
     try {
       setIsLoading(true);
+      hapticFeedback.formSubmit();
       await signIn(email, password);
+      hapticFeedback.success();
       // Navigation will be handled by the RootLayout
     } catch (err: any) {
+      hapticFeedback.error();
       Alert.alert('Error', err.message || 'Failed to sign in');
     } finally {
       setIsLoading(false);
@@ -80,7 +85,10 @@ export default function LoginScreen() {
           <View style={styles.userTypeContainer}>
             <TouchableOpacity
               style={[styles.userTypeButton, userType === 'patient' && styles.selectedUserType]}
-              onPress={() => setUserType('patient')}
+              onPress={() => {
+                hapticFeedback.toggle();
+                setUserType('patient');
+              }}
               disabled={isLoading}
             >
               <Text style={[styles.userTypeText, userType === 'patient' && styles.selectedUserTypeText]}>
@@ -89,7 +97,10 @@ export default function LoginScreen() {
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.userTypeButton, userType === 'caretaker' && styles.selectedUserType]}
-              onPress={() => setUserType('caretaker')}
+              onPress={() => {
+                hapticFeedback.toggle();
+                setUserType('caretaker');
+              }}
               disabled={isLoading}
             >
               <Text style={[styles.userTypeText, userType === 'caretaker' && styles.selectedUserTypeText]}>
@@ -134,9 +145,12 @@ export default function LoginScreen() {
               </TouchableOpacity>
             </View>
           </View>
-          <TouchableOpacity 
-            style={[styles.loginButton, isLoading && styles.loginButtonDisabled]} 
-            onPress={handleLogin}
+                    <TouchableOpacity 
+            style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
+            onPress={() => {
+              hapticFeedback.buttonPress();
+              handleLogin();
+            }}
             disabled={isLoading}
           >
             <Text style={styles.loginButtonText}>
@@ -146,7 +160,10 @@ export default function LoginScreen() {
 
           <TouchableOpacity 
             style={styles.signupLink}
-            onPress={() => router.push('/(auth)/signup' as any)}
+            onPress={() => {
+              hapticFeedback.buttonPress();
+              router.push('/(auth)/signup' as any);
+            }}
             disabled={isLoading}
           >
             <Text style={styles.signupLinkText}>

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, TextInput, Alert, SafeAreaView, Platform, KeyboardAvoidingView } from 'react-native';
 import { api } from '../../lib/api';
 import { useFocusEffect } from 'expo-router';
+import { hapticFeedback } from '../../lib/haptics';
 
 interface Fall {
   id: number;
@@ -40,14 +41,18 @@ export default function FallLogScreen() {
 
   const handleLogFall = async () => {
     if (!newFall.location || !newFall.activity) {
+      hapticFeedback.error();
       Alert.alert('Error', 'Please fill in at least the location and activity.');
       return;
     }
     try {
+      hapticFeedback.critical();
       await api.logFall(newFall);
+      hapticFeedback.success();
       setModalVisible(false);
       fetchFalls(); // Refresh the list
     } catch (error) {
+      hapticFeedback.error();
       Alert.alert('Error', 'Could not log fall.');
     }
   };
@@ -72,7 +77,13 @@ export default function FallLogScreen() {
           keyExtractor={(item) => item.id.toString()}
           ListEmptyComponent={<Text>No falls logged yet.</Text>}
         />
-        <TouchableOpacity style={styles.button} onPress={() => setModalVisible(true)}>
+        <TouchableOpacity 
+          style={styles.button} 
+          onPress={() => {
+            hapticFeedback.buttonPress();
+            setModalVisible(true);
+          }}
+        >
           <Text style={styles.buttonText}>Log New Fall</Text>
         </TouchableOpacity>
       </View>

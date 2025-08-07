@@ -3,6 +3,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
 import { Redirect } from 'expo-router';
 import React from 'react';
+import { hapticFeedback } from '../../lib/haptics';
 
 export default function TabLayout() {
   const { user, loading } = useAuth();
@@ -21,6 +22,16 @@ export default function TabLayout() {
         tabBarActiveTintColor: '#2E7D32',
         tabBarInactiveTintColor: '#666',
         headerShown: false,
+        tabBarStyle: {
+          backgroundColor: '#fff',
+          borderTopWidth: 1,
+          borderTopColor: '#e0e0e0',
+        },
+      }}
+      screenListeners={{
+        tabPress: () => {
+          hapticFeedback.buttonPress();
+        },
       }}>
       <Tabs.Screen
         name="screening"
