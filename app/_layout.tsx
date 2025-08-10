@@ -5,6 +5,7 @@ import { Stack, SplashScreen, useRouter, useSegments } from 'expo-router';
 import { useEffect } from 'react';
 import { useColorScheme, Platform } from 'react-native';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
+import { TextSizeProvider } from '../contexts/TextSizeContext';
 import { Inter_400Regular, Inter_700Bold, Inter_800ExtraBold } from '@expo-google-fonts/inter';
 
 export {
@@ -41,7 +42,9 @@ export default function RootLayout() {
 
   return (
     <AuthProvider>
-      <RootLayoutNav />
+      <TextSizeProvider>
+        <RootLayoutNav />
+      </TextSizeProvider>
     </AuthProvider>
   );
 }

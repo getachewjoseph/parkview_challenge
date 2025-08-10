@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { api } from '../../lib/api';
 import { hapticFeedback } from '../../lib/haptics';
+import { ScaledText } from '../../components/ScaledText';
 
 function getCurrentWeekStart() {
   const now = new Date();
@@ -117,8 +118,8 @@ export default function SteadiScreening() {
           },
         ]}
       >
-        <Text style={styles.title}>Fall Risk Screening</Text>
-        <Text style={styles.subtitle}>NIH STEADI-3 Questionnaire</Text>
+        <ScaledText style={styles.title} baseSize={28}>Fall Risk Screening</ScaledText>
+        <ScaledText style={styles.subtitle} baseSize={16}>NIH STEADI-3 Questionnaire</ScaledText>
 
         <Question
           text="1. Do you feel unsteady when standing or walking?"
@@ -140,7 +141,7 @@ export default function SteadiScreening() {
 
         {answers.fallen === 'Yes' && (
           <View style={styles.extraSection}>
-            <Text style={styles.extraLabel}>How many times?</Text>
+            <ScaledText style={styles.extraLabel} baseSize={16}>How many times?</ScaledText>
             <TextInput
               style={styles.input}
               keyboardType="numeric"
@@ -149,7 +150,7 @@ export default function SteadiScreening() {
               onChangeText={(val) => handleAnswer('fallCount', val)}
             />
 
-            <Text style={styles.extraLabel}>Were you injured?</Text>
+            <ScaledText style={styles.extraLabel} baseSize={16}>Were you injured?</ScaledText>
             <TextInput
               style={styles.input}
               placeholder="Describe injury"
@@ -166,13 +167,13 @@ export default function SteadiScreening() {
             handleSubmit();
           }}
         >
-          <Text style={styles.buttonText}>Submit Answers</Text>
+          <ScaledText style={styles.buttonText} baseSize={16}>Submit Answers</ScaledText>
         </Pressable>
 
         {/* Exercise Section */}
         <View style={styles.exerciseSection}>
-          <Text style={styles.exerciseTitle}>Weekly Exercise</Text>
-          <Text style={styles.exerciseLabel}>How many minutes of exercise did you do this week?</Text>
+          <ScaledText style={styles.exerciseTitle} baseSize={20}>Weekly Exercise</ScaledText>
+          <ScaledText style={styles.exerciseLabel} baseSize={16}>How many minutes of exercise did you do this week?</ScaledText>
           <TextInput
             style={styles.input}
             keyboardType="numeric"
@@ -182,9 +183,9 @@ export default function SteadiScreening() {
             editable={!exerciseLoading}
           />
           {lastExercise !== null && (
-            <Text style={styles.exerciseInfo}>
-              Last submitted for this week: <Text style={{ fontWeight: 'bold' }}>{lastExercise} minutes</Text>
-            </Text>
+            <ScaledText style={styles.exerciseInfo} baseSize={14}>
+              Last submitted for this week: <ScaledText style={{ fontWeight: 'bold' }} baseSize={14}>{lastExercise} minutes</ScaledText>
+            </ScaledText>
           )}
           <Pressable
             style={[styles.button, styles.exerciseButton]}
@@ -194,7 +195,7 @@ export default function SteadiScreening() {
             }}
             disabled={exerciseLoading}
           >
-            <Text style={styles.buttonText}>{exerciseLoading ? 'Submitting...' : 'Submit Exercise'}</Text>
+            <ScaledText style={styles.buttonText} baseSize={16}>{exerciseLoading ? 'Submitting...' : 'Submit Exercise'}</ScaledText>
           </Pressable>
         </View>
       </Animated.ScrollView>
@@ -213,7 +214,7 @@ function Question({
 }) {
   return (
     <View style={styles.questionBlock}>
-      <Text style={styles.questionText}>{text}</Text>
+      <ScaledText style={styles.questionText} baseSize={16}>{text}</ScaledText>
       <View style={styles.buttonRow}>
         <Pressable
           style={[styles.button, value === 'Yes' && styles.selected]}
@@ -222,7 +223,7 @@ function Question({
             onChange('Yes');
           }}
         >
-          <Text style={styles.buttonText}>Yes</Text>
+          <ScaledText style={styles.buttonText} baseSize={16}>Yes</ScaledText>
         </Pressable>
         <Pressable
           style={[styles.button, value === 'No' && styles.selected]}
@@ -231,7 +232,7 @@ function Question({
             onChange('No');
           }}
         >
-          <Text style={styles.buttonText}>No</Text>
+          <ScaledText style={styles.buttonText} baseSize={16}>No</ScaledText>
         </Pressable>
       </View>
     </View>

@@ -12,25 +12,32 @@ import {
   Switch,
   Modal
 } from 'react-native';
+import Slider from '@react-native-community/slider';
 import { StatusBar } from 'expo-status-bar';
 import { api } from '../../lib/api';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTextSize } from '../../contexts/TextSizeContext';
 import { Ionicons } from '@expo/vector-icons';
 import { hapticFeedback } from '../../lib/haptics';
+import { ScaledText } from '../../components/ScaledText';
 
 interface SettingsItem {
   id: string;
   title: string;
   subtitle?: string;
   icon: string;
-  type: 'toggle' | 'button' | 'input' | 'info';
+  type: 'toggle' | 'button' | 'input' | 'info' | 'slider';
   value?: any;
   onPress?: () => void;
-  onValueChange?: (value: boolean) => void;
+  onValueChange?: ((value: boolean) => void) | ((value: number) => void);
+  minValue?: number;
+  maxValue?: number;
+  step?: number;
 }
 
 export default function SettingsScreen() {
   const { user, logout, checkAuth } = useAuth();
+  const { textSize, setTextSize, getScaledFontSize } = useTextSize();
   const [referralCode, setReferralCode] = useState('');
   const [newReferralCode, setNewReferralCode] = useState('');
   const [patientReferralCode, setPatientReferralCode] = useState('');
@@ -132,9 +139,9 @@ export default function SettingsScreen() {
             <Ionicons name={item.icon as any} size={20} color="#2E7D32" />
           </View>
           <View style={styles.settingsItemContent}>
-            <Text style={styles.settingsItemTitle}>{item.title}</Text>
+            <ScaledText style={styles.settingsItemTitle} baseSize={16}>{item.title}</ScaledText>
             {item.subtitle && (
-              <Text style={styles.settingsItemSubtitle}>{item.subtitle}</Text>
+              <ScaledText style={styles.settingsItemSubtitle} baseSize={14}>{item.subtitle}</ScaledText>
             )}
           </View>
         </View>
@@ -144,13 +151,34 @@ export default function SettingsScreen() {
             value={item.value}
             onValueChange={(value) => {
               hapticFeedback.toggle();
-              if (item.onValueChange) {
-                item.onValueChange(value);
+              if (item.onValueChange && typeof value === 'boolean') {
+                (item.onValueChange as (value: boolean) => void)(value);
               }
             }}
             trackColor={{ false: '#e0e0e0', true: '#2E7D32' }}
             thumbColor={item.value ? '#fff' : '#f4f3f4'}
           />
+        )}
+        
+        {item.type === 'slider' && (
+          <View style={styles.sliderContainer}>
+            <Slider
+              style={styles.slider}
+              minimumValue={item.minValue || 0.5}
+              maximumValue={item.maxValue || 2.0}
+              step={item.step || 0.1}
+              value={item.value}
+              onValueChange={(value) => {
+                hapticFeedback.toggle();
+                if (item.onValueChange && typeof value === 'number') {
+                  (item.onValueChange as (value: number) => void)(value);
+                }
+              }}
+              minimumTrackTintColor="#2E7D32"
+              maximumTrackTintColor="#e0e0e0"
+            />
+            <ScaledText style={styles.sliderValue} baseSize={14}>{Math.round(item.value * 100)}%</ScaledText>
+          </View>
         )}
         
         {item.type === 'button' && (
@@ -200,6 +228,18 @@ export default function SettingsScreen() {
         type: 'toggle',
         value: darkMode,
         onValueChange: setDarkMode
+      },
+      {
+        id: 'textSize',
+        title: 'Text Size',
+        subtitle: 'Adjust the size of text throughout the app',
+        icon: 'text-outline',
+        type: 'slider',
+        value: textSize,
+        onValueChange: setTextSize,
+        minValue: 0.8,
+        maxValue: 1.5,
+        step: 0.1
       }
     ];
 
@@ -251,7 +291,7 @@ export default function SettingsScreen() {
         <StatusBar style="auto" />
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#2E7D32" />
-          <Text style={styles.loadingText}>Loading settings...</Text>
+          <ScaledText style={styles.loadingText} baseSize={16}>Loading settings...</ScaledText>
         </View>
       </SafeAreaView>
     );
@@ -261,10 +301,10 @@ export default function SettingsScreen() {
     <SafeAreaView style={styles.safeArea}>
       <StatusBar style="auto" />
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Settings</Text>
-        <Text style={styles.headerSubtitle}>
+        <ScaledText style={styles.headerTitle} baseSize={28}>Settings</ScaledText>
+        <ScaledText style={styles.headerSubtitle} baseSize={16}>
           Manage your {user?.userType === 'caretaker' ? 'caretaker' : 'patient'} account
-        </Text>
+        </ScaledText>
       </View>
 
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -279,34 +319,34 @@ export default function SettingsScreen() {
               />
             </View>
             <View style={styles.profileInfo}>
-              <Text style={styles.profileName}>{user?.email}</Text>
-              <Text style={styles.profileRole}>
+              <ScaledText style={styles.profileName} baseSize={18}>{user?.email}</ScaledText>
+              <ScaledText style={styles.profileRole} baseSize={14}>
                 {user?.userType === 'caretaker' ? 'Caretaker' : 'Patient'}
-              </Text>
+              </ScaledText>
             </View>
           </View>
         </View>
 
         {/* Settings Sections */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Preferences</Text>
+          <ScaledText style={styles.sectionTitle} baseSize={20}>Preferences</ScaledText>
           <View style={styles.settingsCard}>
-            {getSettingsItems().slice(0, 4).map(renderSettingsItem)}
+            {getSettingsItems().slice(0, 5).map(renderSettingsItem)}
           </View>
         </View>
 
         {user?.userType === 'caretaker' && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Caretaker Tools</Text>
+            <ScaledText style={styles.sectionTitle} baseSize={20}>Caretaker Tools</ScaledText>
             <View style={styles.settingsCard}>
-              {getSettingsItems().slice(4, 5).map(renderSettingsItem)}
+              {getSettingsItems().slice(5, 6).map(renderSettingsItem)}
             </View>
           </View>
         )}
 
         {user && !user.caretakerId && user.userType === 'patient' && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Connection</Text>
+            <ScaledText style={styles.sectionTitle} baseSize={20}>Connection</ScaledText>
             <View style={styles.settingsCard}>
               {getSettingsItems().slice(4, 5).map(renderSettingsItem)}
             </View>
@@ -314,7 +354,7 @@ export default function SettingsScreen() {
         )}
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Support</Text>
+          <ScaledText style={styles.sectionTitle} baseSize={20}>Support</ScaledText>
           <View style={styles.settingsCard}>
             {getSettingsItems().slice(-2).map(renderSettingsItem)}
           </View>
@@ -324,7 +364,7 @@ export default function SettingsScreen() {
         <View style={styles.section}>
           <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
             <Ionicons name="log-out-outline" size={20} color="#fff" />
-            <Text style={styles.logoutButtonText}>Logout</Text>
+            <ScaledText style={styles.logoutButtonText} baseSize={16}>Logout</ScaledText>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -339,16 +379,16 @@ export default function SettingsScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Update Referral Code</Text>
+              <ScaledText style={styles.modalTitle} baseSize={20}>Update Referral Code</ScaledText>
               <TouchableOpacity onPress={() => setShowReferralModal(false)}>
                 <Ionicons name="close" size={24} color="#666" />
               </TouchableOpacity>
             </View>
             
-            <Text style={styles.modalLabel}>Current Code</Text>
-            <Text style={styles.currentCode}>{referralCode}</Text>
+            <ScaledText style={styles.modalLabel} baseSize={16}>Current Code</ScaledText>
+            <ScaledText style={styles.currentCode} baseSize={24}>{referralCode}</ScaledText>
             
-            <Text style={styles.modalLabel}>New Code</Text>
+            <ScaledText style={styles.modalLabel} baseSize={16}>New Code</ScaledText>
             <TextInput
               style={styles.modalInput}
               value={newReferralCode}
@@ -362,16 +402,16 @@ export default function SettingsScreen() {
                 style={styles.modalButtonSecondary} 
                 onPress={() => setShowReferralModal(false)}
               >
-                <Text style={styles.modalButtonSecondaryText}>Cancel</Text>
+                <ScaledText style={styles.modalButtonSecondaryText} baseSize={16}>Cancel</ScaledText>
               </TouchableOpacity>
               <TouchableOpacity 
                 style={styles.modalButtonPrimary} 
                 onPress={handleUpdateReferralCode}
                 disabled={updating}
               >
-                <Text style={styles.modalButtonPrimaryText}>
+                <ScaledText style={styles.modalButtonPrimaryText} baseSize={16}>
                   {updating ? 'Updating...' : 'Update'}
-                </Text>
+                </ScaledText>
               </TouchableOpacity>
             </View>
           </View>
@@ -388,13 +428,13 @@ export default function SettingsScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Link to Caretaker</Text>
+              <ScaledText style={styles.modalTitle} baseSize={20}>Link to Caretaker</ScaledText>
               <TouchableOpacity onPress={() => setShowLinkModal(false)}>
                 <Ionicons name="close" size={24} color="#666" />
               </TouchableOpacity>
             </View>
             
-            <Text style={styles.modalLabel}>Caretaker Referral Code</Text>
+            <ScaledText style={styles.modalLabel} baseSize={16}>Caretaker Referral Code</ScaledText>
             <TextInput
               style={styles.modalInput}
               value={patientReferralCode}
@@ -408,16 +448,16 @@ export default function SettingsScreen() {
                 style={styles.modalButtonSecondary} 
                 onPress={() => setShowLinkModal(false)}
               >
-                <Text style={styles.modalButtonSecondaryText}>Cancel</Text>
+                <ScaledText style={styles.modalButtonSecondaryText} baseSize={16}>Cancel</ScaledText>
               </TouchableOpacity>
               <TouchableOpacity 
                 style={styles.modalButtonPrimary} 
                 onPress={handleLinkCaretaker}
                 disabled={updating}
               >
-                <Text style={styles.modalButtonPrimaryText}>
+                <ScaledText style={styles.modalButtonPrimaryText} baseSize={16}>
                   {updating ? 'Linking...' : 'Link Account'}
-                </Text>
+                </ScaledText>
               </TouchableOpacity>
             </View>
           </View>
@@ -651,5 +691,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#fff',
     fontWeight: 'bold',
+  },
+  sliderContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    marginLeft: 16,
+  },
+  slider: {
+    flex: 1,
+    height: 40,
+  },
+  sliderValue: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#2E7D32',
+    marginLeft: 12,
+    minWidth: 40,
+    textAlign: 'right',
   },
 }); 
