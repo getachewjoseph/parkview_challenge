@@ -1,10 +1,10 @@
-import { Router } from 'express';
-import pool from '../config/database';
-import { authenticateToken } from '../middleware/auth';
+import { Router, Request, Response } from 'express';
+import { pool } from '../config/database';
+import { auth } from '../middleware/auth';
 
 const router = Router();
 
-router.get('/favorites', authenticateToken, async (req, res) => {
+router.get('/favorites', auth, async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
     
@@ -13,7 +13,7 @@ router.get('/favorites', authenticateToken, async (req, res) => {
       [userId]
     );
     
-    const favoriteIds = result.rows.map(row => row.location_id);
+    const favoriteIds = result.rows.map((row: any) => row.location_id);
     res.json({ favoriteIds });
   } catch (error) {
     console.error('Error fetching favorites:', error);
@@ -21,7 +21,7 @@ router.get('/favorites', authenticateToken, async (req, res) => {
   }
 });
 
-router.post('/favorites/:locationId', authenticateToken, async (req, res) => {
+router.post('/favorites/:locationId', auth, async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
     const locationId = parseInt(req.params.locationId);
@@ -42,7 +42,7 @@ router.post('/favorites/:locationId', authenticateToken, async (req, res) => {
   }
 });
 
-router.delete('/favorites/:locationId', authenticateToken, async (req, res) => {
+router.delete('/favorites/:locationId', auth, async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
     const locationId = parseInt(req.params.locationId);
