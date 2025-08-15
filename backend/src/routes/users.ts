@@ -153,4 +153,151 @@ router.get('/me/patients/:patientId/exercise', auth, async (req, res) => {
   }
 });
 
+// Get analytics data for current user (patients) or specific patient (caretakers)
+router.get('/me/analytics', auth, async (req, res) => {
+  try {
+    const userId = req.user?.userType === 'patient' ? req.user.id : null;
+    
+    if (!userId) {
+      return res.status(403).json({ error: 'Patients only endpoint' });
+    }
+
+    // Get user's exercise logs for last 12 weeks
+    const exerciseRes = await pool.query(
+      `SELECT week_start, minutes 
+       FROM exercise_logs 
+       WHERE user_id = $1 
+       AND week_start >= CURRENT_DATE - INTERVAL '12 weeks'
+       ORDER BY week_start ASC`,
+      [userId]
+    );
+
+    // Get user's falls for last 6 months
+    const fallsRes = await pool.query(
+      `SELECT fall_date, location, activity, cause, injuries
+       FROM falls 
+       WHERE user_id = $1 
+       AND fall_date >= CURRENT_DATE - INTERVAL '6 months'
+       ORDER BY fall_date DESC`,
+      [userId]
+    );
+
+    // Get user's latest screening
+    const screeningRes = await pool.query(
+      `SELECT unsteady, worries, fallen, fall_count, fall_injured, created_at
+       FROM screenings 
+       WHERE user_id = $1 
+       ORDER BY created_at DESC 
+       LIMIT 1`,
+      [userId]
+    );
+
+    // Calculate risk score based on various factors
+    const riskFactors = {
+      hasRecentFalls: fallsRes.rows.length > 0,
+      fallCount: fallsRes.rows.length,
+      lowExercise: exerciseRes.rows.filter((log: any) => log.minutes < 50).length,
+      screeningRisk: screeningRes.rows.length > 0 ? 
+        (screeningRes.rows[0].unsteady || screeningRes.rows[0].worries || screeningRes.rows[0].fallen) : false
+    };
+
+    let riskScore = 0;
+    if (riskFactors.hasRecentFalls) riskScore += 30;
+    if (riskFactors.fallCount > 2) riskScore += 20;
+    if (riskFactors.lowExercise > 4) riskScore += 25;
+    if (riskFactors.screeningRisk) riskScore += 25;
+
+    return res.json({
+      exerciseLogs: exerciseRes.rows,
+      falls: fallsRes.rows,
+      screening: screeningRes.rows[0] || null,
+      riskScore: Math.min(riskScore, 100),
+      riskFactors
+    });
+  } catch (error) {
+    console.error('Error fetching analytics:', error);
+    return res.status(500).json({ error: 'Server error while fetching analytics.' });
+  }
+});
+
+// Get analytics data for a specific patient (caretakers only)
+router.get('/me/patients/:patientId/analytics', auth, async (req, res) => {
+  if (req.user?.userType !== 'caretaker') {
+    return res.status(403).json({ error: 'Only caretakers can access this resource.' });
+  }
+
+  const { patientId } = req.params;
+
+  try {
+    // Verify the patient is linked to this caretaker
+    const patientRes = await pool.query(
+      'SELECT id, full_name FROM users WHERE id = $1 AND caretaker_id = $2 AND user_type = \'patient\'',
+      [patientId, req.user.id]
+    );
+
+    if (patientRes.rows.length === 0) {
+      return res.status(404).json({ error: 'Patient not found or not linked to you.' });
+    }
+
+    const patient = patientRes.rows[0];
+
+    // Get patient's exercise logs for last 12 weeks
+    const exerciseRes = await pool.query(
+      `SELECT week_start, minutes 
+       FROM exercise_logs 
+       WHERE user_id = $1 
+       AND week_start >= CURRENT_DATE - INTERVAL '12 weeks'
+       ORDER BY week_start ASC`,
+      [patientId]
+    );
+
+    // Get patient's falls for last 6 months
+    const fallsRes = await pool.query(
+      `SELECT fall_date, location, activity, cause, injuries
+       FROM falls 
+       WHERE user_id = $1 
+       AND fall_date >= CURRENT_DATE - INTERVAL '6 months'
+       ORDER BY fall_date DESC`,
+      [patientId]
+    );
+
+    // Get patient's latest screening
+    const screeningRes = await pool.query(
+      `SELECT unsteady, worries, fallen, fall_count, fall_injured, created_at
+       FROM screenings 
+       WHERE user_id = $1 
+       ORDER BY created_at DESC 
+       LIMIT 1`,
+      [patientId]
+    );
+
+    // Calculate risk score
+    const riskFactors = {
+      hasRecentFalls: fallsRes.rows.length > 0,
+      fallCount: fallsRes.rows.length,
+      lowExercise: exerciseRes.rows.filter((log: any) => log.minutes < 50).length,
+      screeningRisk: screeningRes.rows.length > 0 ? 
+        (screeningRes.rows[0].unsteady || screeningRes.rows[0].worries || screeningRes.rows[0].fallen) : false
+    };
+
+    let riskScore = 0;
+    if (riskFactors.hasRecentFalls) riskScore += 30;
+    if (riskFactors.fallCount > 2) riskScore += 20;
+    if (riskFactors.lowExercise > 4) riskScore += 25;
+    if (riskFactors.screeningRisk) riskScore += 25;
+
+    return res.json({
+      patient,
+      exerciseLogs: exerciseRes.rows,
+      falls: fallsRes.rows,
+      screening: screeningRes.rows[0] || null,
+      riskScore: Math.min(riskScore, 100),
+      riskFactors
+    });
+  } catch (error) {
+    console.error('Error fetching patient analytics:', error);
+    return res.status(500).json({ error: 'Server error while fetching patient analytics.' });
+  }
+});
+
 export default router; 
