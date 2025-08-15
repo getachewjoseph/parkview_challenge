@@ -4,8 +4,8 @@ import { Platform } from 'react-native';
 // API URL configuration
 const getApiUrl = () => {
   if (Platform.OS === 'ios') {
-    // For iOS simulator
-    return 'http://127.0.0.1:3001/api';
+    // For iOS device/simulator - use your network IP
+    return 'http://192.168.1.15:3001/api';
   } else if (Platform.OS === 'android') {
     // For Android emulator
     return 'http://10.0.2.2:3001/api';

@@ -112,18 +112,31 @@ router.post('/me/exercise', auth, async (req, res) => {
     return res.status(400).json({ error: 'weekStart (YYYY-MM-DD) and minutes are required.' });
   }
   try {
-    // Upsert: if an entry for this week exists, update it
-    const result = await pool.query(
-      `INSERT INTO exercise_logs (user_id, week_start, minutes)
-       VALUES ($1, $2, $3)
-       ON CONFLICT (user_id, week_start) DO UPDATE SET minutes = $3, created_at = CURRENT_TIMESTAMP
-       RETURNING *`,
-      [req.user.id, weekStart, minutes]
+    // Check if an entry for this week already exists
+    const existingLog = await pool.query(
+      'SELECT * FROM exercise_logs WHERE user_id = $1 AND week_start = $2',
+      [req.user.id, weekStart]
     );
-    res.json({ exercise: result.rows[0] });
+
+    let result;
+    if (existingLog.rows.length > 0) {
+      // Update existing log
+      result = await pool.query(
+        'UPDATE exercise_logs SET minutes = $1, created_at = CURRENT_TIMESTAMP WHERE user_id = $2 AND week_start = $3 RETURNING *',
+        [minutes, req.user.id, weekStart]
+      );
+    } else {
+      // Create new log
+      result = await pool.query(
+        'INSERT INTO exercise_logs (user_id, week_start, minutes) VALUES ($1, $2, $3) RETURNING *',
+        [req.user.id, weekStart, minutes]
+      );
+    }
+    
+    return res.json({ exercise: result.rows[0] });
   } catch (error) {
     console.error('Error submitting exercise:', error);
-    res.status(500).json({ error: 'Server error while submitting exercise.' });
+    return res.status(500).json({ error: 'Server error while submitting exercise.' });
   }
 });
 
