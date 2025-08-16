@@ -1,3 +1,17 @@
+/**
+ * Tai Chi Map Screen
+ * 
+ * This component displays a map view showing nearby Tai Chi events and locations.
+ * Users can view event details, save favorites, and filter to show only favorited locations.
+ * 
+ * Features:
+ * - Interactive map with custom markers
+ * - Favorite/unfavorite functionality for logged-in users
+ * - Filter to show only favorited locations
+ * - Horizontal scrollable list of location cards
+ * - Real-time favorites synchronization with backend
+ */
+
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';

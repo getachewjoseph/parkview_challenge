@@ -14,10 +14,10 @@ export const ScaledText: React.FC<ScaledTextProps> = ({
 }) => {
   const { getScaledFontSize } = useTextSize();
   
-  const scaledStyle = {
-    ...style,
-    fontSize: getScaledFontSize(baseSize),
-  };
+  const scaledStyle = [
+    style,
+    { fontSize: getScaledFontSize(baseSize) }
+  ];
 
   return (
     <Text style={scaledStyle} {...props}>

@@ -4,14 +4,14 @@ import { Platform } from 'react-native';
 // API URL configuration
 const getApiUrl = () => {
   if (Platform.OS === 'ios') {
-    // For iOS simulator
-    return 'http://127.0.0.1:3000/api';
+    // For iOS device/simulator - use your network IP
+    return 'http://192.168.1.15:3001/api';
   } else if (Platform.OS === 'android') {
     // For Android emulator
-    return 'http://10.0.2.2:3000/api';
+    return 'http://10.0.2.2:3001/api';
   } else {
     // For web or other platforms
-    return 'http://localhost:3000/api';
+    return 'http://localhost:3001/api';
   }
 };
 
@@ -246,7 +246,17 @@ export const api = {
   async getCurrentWeekExercise(weekStart: string) {
     const token = await this.getToken();
     if (!token) throw new Error('Not authenticated');
-    const response = await fetch(`${API_URL}/users/me/exercise?weekStart=${weekStart}`, {
+    const url = weekStart ? `${API_URL}/users/me/exercise?weekStart=${weekStart}` : `${API_URL}/users/me/exercise`;
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return await handleResponse(response);
+  },
+
+  async getAllExerciseLogs() {
+    const token = await this.getToken();
+    if (!token) throw new Error('Not authenticated');
+    const response = await fetch(`${API_URL}/users/me/exercise`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return await handleResponse(response);
@@ -276,6 +286,24 @@ export const api = {
     if (!token) throw new Error('Not authenticated');
     const response = await fetch(`${API_URL}/tai-chi/favorites/${locationId}`, {
       method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return await handleResponse(response);
+  },
+
+  async getAnalytics() {
+    const token = await this.getToken();
+    if (!token) throw new Error('Not authenticated');
+    const response = await fetch(`${API_URL}/users/me/analytics`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return await handleResponse(response);
+  },
+
+  async getPatientAnalytics(patientId: number) {
+    const token = await this.getToken();
+    if (!token) throw new Error('Not authenticated');
+    const response = await fetch(`${API_URL}/users/me/patients/${patientId}/analytics`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return await handleResponse(response);

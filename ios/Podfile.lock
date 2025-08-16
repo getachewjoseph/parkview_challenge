@@ -38,6 +38,8 @@ PODS:
     - ExpoModulesCore
   - ExpoHaptics (14.1.4):
     - ExpoModulesCore
+  - ExpoHaptics (14.1.4):
+    - ExpoModulesCore
   - ExpoHead (5.1.1):
     - ExpoModulesCore
   - ExpoKeepAwake (14.1.4):
@@ -77,30 +79,6 @@ PODS:
     - ExpoModulesCore
   - fast_float (6.1.4)
   - FBLazyVector (0.79.2)
-  - Firebase/Auth (11.13.0):
-    - Firebase/CoreOnly
-    - FirebaseAuth (~> 11.13.0)
-  - Firebase/CoreOnly (11.13.0):
-    - FirebaseCore (~> 11.13.0)
-  - FirebaseAppCheckInterop (11.15.0)
-  - FirebaseAuth (11.13.0):
-    - FirebaseAppCheckInterop (~> 11.0)
-    - FirebaseAuthInterop (~> 11.0)
-    - FirebaseCore (~> 11.13.0)
-    - FirebaseCoreExtension (~> 11.13.0)
-    - GoogleUtilities/AppDelegateSwizzler (~> 8.1)
-    - GoogleUtilities/Environment (~> 8.1)
-    - GTMSessionFetcher/Core (< 5.0, >= 3.4)
-    - RecaptchaInterop (~> 101.0)
-  - FirebaseAuthInterop (11.15.0)
-  - FirebaseCore (11.13.0):
-    - FirebaseCoreInternal (~> 11.13.0)
-    - GoogleUtilities/Environment (~> 8.1)
-    - GoogleUtilities/Logger (~> 8.1)
-  - FirebaseCoreExtension (11.13.0):
-    - FirebaseCore (~> 11.13.0)
-  - FirebaseCoreInternal (11.13.0):
-    - "GoogleUtilities/NSData+zlib (~> 8.1)"
   - fmt (11.0.2)
   - glog (0.3.5)
   - Google-Maps-iOS-Utils (5.0.0):
@@ -110,28 +88,6 @@ PODS:
   - GoogleMaps/Base (8.4.0)
   - GoogleMaps/Maps (8.4.0):
     - GoogleMaps/Base
-  - GoogleUtilities/AppDelegateSwizzler (8.1.0):
-    - GoogleUtilities/Environment
-    - GoogleUtilities/Logger
-    - GoogleUtilities/Network
-    - GoogleUtilities/Privacy
-  - GoogleUtilities/Environment (8.1.0):
-    - GoogleUtilities/Privacy
-  - GoogleUtilities/Logger (8.1.0):
-    - GoogleUtilities/Environment
-    - GoogleUtilities/Privacy
-  - GoogleUtilities/Network (8.1.0):
-    - GoogleUtilities/Logger
-    - "GoogleUtilities/NSData+zlib"
-    - GoogleUtilities/Privacy
-    - GoogleUtilities/Reachability
-  - "GoogleUtilities/NSData+zlib (8.1.0)":
-    - GoogleUtilities/Privacy
-  - GoogleUtilities/Privacy (8.1.0)
-  - GoogleUtilities/Reachability (8.1.0):
-    - GoogleUtilities/Logger
-    - GoogleUtilities/Privacy
-  - GTMSessionFetcher/Core (4.5.0)
   - hermes-engine (0.79.2):
     - hermes-engine/Pre-built (= 0.79.2)
   - hermes-engine/Pre-built (0.79.2)
@@ -1911,7 +1867,6 @@ PODS:
     - React-logger (= 0.79.2)
     - React-perflogger (= 0.79.2)
     - React-utils (= 0.79.2)
-  - RecaptchaInterop (101.0.0)
   - RNCAsyncStorage (1.24.0):
     - DoubleConversion
     - glog
@@ -1936,13 +1891,6 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNFBApp (22.2.1):
-    - Firebase/CoreOnly (= 11.13.0)
-    - React-Core
-  - RNFBAuth (22.2.1):
-    - Firebase/Auth (= 11.13.0)
-    - React-Core
-    - RNFBApp
   - RNReanimated (3.17.5):
     - DoubleConversion
     - glog
@@ -2175,7 +2123,7 @@ DEPENDENCIES:
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
   - React-microtasksnativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
-  - react-native-google-maps (from `/Users/josephgetachew/Documents/GitHub/parkview_challenger/node_modules/react-native-maps`)
+  - react-native-google-maps (from `/Users/zainsohail/newpark/parkview_challenge/node_modules/react-native-maps`)
   - react-native-maps (from `../node_modules/react-native-maps`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
@@ -2211,26 +2159,14 @@ DEPENDENCIES:
   - ReactCodegen (from `build/generated/ios`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
-  - "RNFBApp (from `../node_modules/@react-native-firebase/app`)"
-  - "RNFBAuth (from `../node_modules/@react-native-firebase/auth`)"
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
   trunk:
-    - Firebase
-    - FirebaseAppCheckInterop
-    - FirebaseAuth
-    - FirebaseAuthInterop
-    - FirebaseCore
-    - FirebaseCoreExtension
-    - FirebaseCoreInternal
     - Google-Maps-iOS-Utils
     - GoogleMaps
-    - GoogleUtilities
-    - GTMSessionFetcher
-    - RecaptchaInterop
     - SocketRocket
 
 EXTERNAL SOURCES:
@@ -2338,7 +2274,7 @@ EXTERNAL SOURCES:
   React-microtasksnativemodule:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/microtasks"
   react-native-google-maps:
-    :path: "/Users/josephgetachew/Documents/GitHub/parkview_challenger/node_modules/react-native-maps"
+    :path: "/Users/zainsohail/newpark/parkview_challenge/node_modules/react-native-maps"
   react-native-maps:
     :path: "../node_modules/react-native-maps"
   react-native-safe-area-context:
@@ -2409,10 +2345,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-async-storage/async-storage"
-  RNFBApp:
-    :path: "../node_modules/@react-native-firebase/app"
-  RNFBAuth:
-    :path: "../node_modules/@react-native-firebase/auth"
   RNReanimated:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
@@ -2438,19 +2370,10 @@ SPEC CHECKSUMS:
   ExpoWebBrowser: 06fb5f767f53ad53944b068cdd207984cb998712
   fast_float: 06eeec4fe712a76acc9376682e4808b05ce978b6
   FBLazyVector: 84b955f7b4da8b895faf5946f73748267347c975
-  Firebase: 3435bc66b4d494c2f22c79fd3aae4c1db6662327
-  FirebaseAppCheckInterop: 06fe5a3799278ae4667e6c432edd86b1030fa3df
-  FirebaseAuth: 175cb5503dfdb52191b8ff81cdd52c1d9dee9ac9
-  FirebaseAuthInterop: 7087d7a4ee4bc4de019b2d0c240974ed5d89e2fd
-  FirebaseCore: c692c7f1c75305ab6aff2b367f25e11d73aa8bd0
-  FirebaseCoreExtension: c048485c347616dba6165358dbef765c5197597b
-  FirebaseCoreInternal: 29d7b3af4aaf0b8f3ed20b568c13df399b06f68c
   fmt: a40bb5bd0294ea969aaaba240a927bd33d878cdd
   glog: 5683914934d5b6e4240e497e0f4a3b42d1854183
   Google-Maps-iOS-Utils: 66d6de12be1ce6d3742a54661e7a79cb317a9321
   GoogleMaps: 8939898920281c649150e0af74aa291c60f2e77d
-  GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
-  GTMSessionFetcher: fc75fc972958dceedee61cb662ae1da7a83a91cf
   hermes-engine: 314be5250afa5692b57b4dd1705959e1973a8ebe
   RCT-Folly: e78785aa9ba2ed998ea4151e314036f6c49e6d82
   RCTDeprecation: 83ffb90c23ee5cea353bd32008a7bca100908f8c
@@ -2518,10 +2441,7 @@ SPEC CHECKSUMS:
   ReactAppDependencyProvider: 04d5eb15eb46be6720e17a4a7fa92940a776e584
   ReactCodegen: c63eda03ba1d94353fb97b031fc84f75a0d125ba
   ReactCommon: 76d2dc87136d0a667678668b86f0fca0c16fdeb0
-  RecaptchaInterop: 11e0b637842dfb48308d242afc3f448062325aba
   RNCAsyncStorage: 7c077de553127336f479393dba37e86d6c929db8
-  RNFBApp: 557f15b87d602ed5879a1cbd6dc574481bccb278
-  RNFBAuth: fb0421232f23c6801923926f4447cf73e62418e8
   RNReanimated: 2313402fe27fecb7237619e9c6fcee3177f08a65
   RNScreens: 5621e3ad5a329fbd16de683344ac5af4192b40d3
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748

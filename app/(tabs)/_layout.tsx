@@ -58,6 +58,22 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="exercise-log"
+        options={{
+          title: 'Exercise',
+          tabBarIcon: ({ color }) => <FontAwesome name="heartbeat" size={24} color={color} />,
+          href: user.userType === 'patient' ? '/(tabs)/exercise-log' : null,
+        }}
+      />
+      <Tabs.Screen
+        name="analytics"
+        options={{
+          title: 'Analytics',
+          tabBarIcon: ({ color }) => <FontAwesome name="bar-chart" size={24} color={color} />,
+          href: user.userType === 'patient' ? ('/(tabs)/analytics' as any) : null,
+        }}
+      />
+      <Tabs.Screen
         name="caretaker-dashboard"
         options={{
           title: 'Dashboard',
