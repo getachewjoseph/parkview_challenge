@@ -1,6 +1,3 @@
-import { Router } from 'express';
-import { pool } from '../config/database';
-import { auth as authenticateToken } from '../middleware/auth';
 import { Router, Request, Response } from 'express';
 import { pool } from '../config/database';
 import { auth } from '../middleware/auth';
