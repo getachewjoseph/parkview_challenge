@@ -5,13 +5,13 @@ import { Platform } from 'react-native';
 const getApiUrl = () => {
   if (Platform.OS === 'ios') {
     // For iOS device/simulator - use your network IP
-    return 'http://192.168.1.15:3001/api';
+    return 'http://10.0.0.34:3000/api';
   } else if (Platform.OS === 'android') {
     // For Android emulator
-    return 'http://10.0.2.2:3001/api';
+    return 'http://10.0.2.2:3000/api';
   } else {
     // For web or other platforms
-    return 'http://localhost:3001/api';
+    return 'http://localhost:3000/api';
   }
 };
 
