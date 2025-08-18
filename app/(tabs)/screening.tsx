@@ -16,15 +16,6 @@ import { api } from '../../lib/api';
 import { hapticFeedback } from '../../lib/haptics';
 import { ScaledText } from '../../components/ScaledText';
 
-function getCurrentWeekStart() {
-  const now = new Date();
-  const day = now.getDay();
-  const diff = now.getDate() - day + (day === 0 ? -6 : 1); // Monday as start
-  const monday = new Date(now.setDate(diff));
-  monday.setHours(0, 0, 0, 0);
-  return monday.toISOString().slice(0, 10);
-}
-
 export default function SteadiScreening() {
   const [answers, setAnswers] = useState({
     unsteady: null,
@@ -33,9 +24,6 @@ export default function SteadiScreening() {
     fallCount: '',
     fallInjured: '',
   });
-  const [exerciseMinutes, setExerciseMinutes] = useState('');
-  const [lastExercise, setLastExercise] = useState<number | null>(null);
-  const [exerciseLoading, setExerciseLoading] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -44,24 +32,7 @@ export default function SteadiScreening() {
       duration: 500,
       useNativeDriver: true,
     }).start();
-    fetchExercise();
   }, []);
-
-  const fetchExercise = async () => {
-    try {
-      setExerciseLoading(true);
-      const weekStart = getCurrentWeekStart();
-      const response = await api.getCurrentWeekExercise(weekStart);
-      if (response.exercise_logs && response.exercise_logs.length > 0) {
-        setLastExercise(response.exercise_logs[0].minutes);
-      }
-    } catch (error) {
-      // Silently fail if no exercise data exists yet
-      console.log('No exercise data for current week');
-    } finally {
-      setExerciseLoading(false);
-    }
-  };
 
   const handleAnswer = (key: string, value: string) => {
     setAnswers((prev) => ({ ...prev, [key]: value }));
@@ -85,27 +56,7 @@ export default function SteadiScreening() {
     }
   };
 
-  const handleExerciseSubmit = async () => {
-    if (!exerciseMinutes || isNaN(Number(exerciseMinutes))) {
-      hapticFeedback.error();
-      Alert.alert('Error', 'Please enter the number of minutes exercised.');
-      return;
-    }
-    try {
-      setExerciseLoading(true);
-      hapticFeedback.formSubmit();
-      const weekStart = getCurrentWeekStart();
-      const res = await api.submitExercise({ weekStart, minutes: Number(exerciseMinutes) });
-      setLastExercise(res.exercise.minutes);
-      hapticFeedback.success();
-      Alert.alert('Success', 'Exercise log submitted!');
-    } catch (err: any) {
-      hapticFeedback.error();
-      Alert.alert('Failed to submit: ' + (err.message || 'Unknown error'));
-    } finally {
-      setExerciseLoading(false);
-    }
-  };
+
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -169,35 +120,6 @@ export default function SteadiScreening() {
         >
           <ScaledText style={styles.buttonText} baseSize={16}>Submit Answers</ScaledText>
         </Pressable>
-
-        {/* Exercise Section */}
-        <View style={styles.exerciseSection}>
-          <ScaledText style={styles.exerciseTitle} baseSize={20}>Weekly Exercise</ScaledText>
-          <ScaledText style={styles.exerciseLabel} baseSize={16}>How many minutes of exercise did you do this week?</ScaledText>
-          <TextInput
-            style={styles.input}
-            keyboardType="numeric"
-            placeholder="e.g., 150"
-            value={exerciseMinutes}
-            onChangeText={setExerciseMinutes}
-            editable={!exerciseLoading}
-          />
-          {lastExercise !== null && (
-            <ScaledText style={styles.exerciseInfo} baseSize={14}>
-              Last submitted for this week: <ScaledText style={{ fontWeight: 'bold' }} baseSize={14}>{lastExercise} minutes</ScaledText>
-            </ScaledText>
-          )}
-          <Pressable
-            style={[styles.button, styles.exerciseButton]}
-            onPress={() => {
-              hapticFeedback.buttonPress();
-              handleExerciseSubmit();
-            }}
-            disabled={exerciseLoading}
-          >
-            <ScaledText style={styles.buttonText} baseSize={16}>{exerciseLoading ? 'Submitting...' : 'Submit Exercise'}</ScaledText>
-          </Pressable>
-        </View>
       </Animated.ScrollView>
     </SafeAreaView>
   );
@@ -313,36 +235,5 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     marginTop: 10,
-  },
-  exerciseSection: {
-    marginTop: 36,
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  exerciseTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#2E7D32',
-    marginBottom: 8,
-  },
-  exerciseLabel: {
-    fontSize: 16,
-    color: '#333',
-    marginBottom: 8,
-  },
-  exerciseInfo: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 8,
-  },
-  exerciseButton: {
-    backgroundColor: '#2E7D32',
-    marginTop: 8,
   },
 });

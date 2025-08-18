@@ -243,27 +243,37 @@ export default function SettingsScreen() {
       }
     ];
 
-    if (user?.userType === 'caretaker') {
-      items.push({
+    return items;
+  };
+
+  const getCaretakerItems = (): SettingsItem[] => {
+    return [
+      {
         id: 'referralCode',
         title: 'Referral Code',
         subtitle: referralCode,
         icon: 'qr-code-outline',
         type: 'button',
         onPress: () => setShowReferralModal(true)
-      });
-    } else if (user && !user.caretakerId) {
-      items.push({
+      }
+    ];
+  };
+
+  const getConnectionItems = (): SettingsItem[] => {
+    return [
+      {
         id: 'linkCaretaker',
         title: 'Link to Caretaker',
         subtitle: 'Connect with your caretaker',
         icon: 'link-outline',
         type: 'button',
         onPress: () => setShowLinkModal(true)
-      });
-    }
+      }
+    ];
+  };
 
-    items.push(
+  const getSupportItems = (): SettingsItem[] => {
+    return [
       {
         id: 'help',
         title: 'Help & Support',
@@ -280,9 +290,7 @@ export default function SettingsScreen() {
         type: 'button',
         onPress: () => Alert.alert('About', 'FallGuard v1.0.0\nYour Safety Companion')
       }
-    );
-
-    return items;
+    ];
   };
 
   if (loading && user?.userType === 'caretaker') {
@@ -331,7 +339,7 @@ export default function SettingsScreen() {
         <View style={styles.section}>
           <ScaledText style={styles.sectionTitle} baseSize={20}>Preferences</ScaledText>
           <View style={styles.settingsCard}>
-            {getSettingsItems().slice(0, 5).map(renderSettingsItem)}
+            {getSettingsItems().map(renderSettingsItem)}
           </View>
         </View>
 
@@ -339,7 +347,7 @@ export default function SettingsScreen() {
           <View style={styles.section}>
             <ScaledText style={styles.sectionTitle} baseSize={20}>Caretaker Tools</ScaledText>
             <View style={styles.settingsCard}>
-              {getSettingsItems().slice(5, 6).map(renderSettingsItem)}
+              {getCaretakerItems().map(renderSettingsItem)}
             </View>
           </View>
         )}
@@ -348,7 +356,7 @@ export default function SettingsScreen() {
           <View style={styles.section}>
             <ScaledText style={styles.sectionTitle} baseSize={20}>Connection</ScaledText>
             <View style={styles.settingsCard}>
-              {getSettingsItems().slice(4, 5).map(renderSettingsItem)}
+              {getConnectionItems().map(renderSettingsItem)}
             </View>
           </View>
         )}
@@ -356,7 +364,7 @@ export default function SettingsScreen() {
         <View style={styles.section}>
           <ScaledText style={styles.sectionTitle} baseSize={20}>Support</ScaledText>
           <View style={styles.settingsCard}>
-            {getSettingsItems().slice(-2).map(renderSettingsItem)}
+            {getSupportItems().map(renderSettingsItem)}
           </View>
         </View>
 
