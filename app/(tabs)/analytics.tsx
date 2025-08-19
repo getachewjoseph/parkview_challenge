@@ -99,6 +99,13 @@ export default function AnalyticsScreen() {
     });
   };
 
+  const formatDateShort = (dateString: string) => {
+    const date = new Date(dateString);
+    const month = date.toLocaleDateString('en-US', { month: 'short' });
+    const day = date.getDate();
+    return `${month} ${day}`;
+  };
+
   const getRiskLevel = (score: number) => {
     if (score >= 80) return { level: 'Very High', color: '#D32F2F', icon: 'warning' };
     if (score >= 60) return { level: 'High', color: '#FF6B6B', icon: 'alert-circle' };
@@ -251,6 +258,9 @@ For medical advice, please consult with your healthcare provider
     decimalPlaces: 0,
     style: {
       borderRadius: 16
+    },
+    propsForLabels: {
+      rotation: 45
     }
   };
 
@@ -376,6 +386,7 @@ For medical advice, please consult with your healthcare provider
               chartConfig={chartConfig}
               accessor="value"
               backgroundColor="transparent"
+              paddingLeft="15"
               style={styles.chart}
             />
           </View>
@@ -547,6 +558,8 @@ const styles = StyleSheet.create({
   },
   chart: {
     marginVertical: 8,
+    marginTop: 20,
+    marginLeft: -20,
     borderRadius: 16,
   },
   chartNote: {

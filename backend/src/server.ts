@@ -7,6 +7,7 @@ import usersRoutes from './routes/users';
 import fallsRoutes from './routes/falls';
 import exerciseRoutes from './routes/exercise';
 import favoritesRoutes from './routes/favorites';
+import fakeDataRoutes from './routes/fake-data';
 
 dotenv.config();
 
@@ -35,6 +36,7 @@ app.use('/api/users', usersRoutes);
 app.use('/api/falls', fallsRoutes);
 app.use('/api', exerciseRoutes);
 app.use('/api/tai-chi', favoritesRoutes);
+app.use('/api', fakeDataRoutes);
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
